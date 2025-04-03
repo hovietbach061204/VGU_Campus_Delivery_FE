@@ -1,11 +1,11 @@
-import React from "react";
-import { CallToActionSection } from "./CallToActionSection";
-import { DeliveryInfoSection } from "./DeliveryInfoSection";
-import { FeaturedDishesSection } from "./FeaturedDishesSection";
-import { FooterSection } from "./FooterSection";
-import { HeroSection } from "./HeroSection";
-import { MenuSection } from "./MenuSection";
-import { TestimonialsSection } from "./TestimonialsSection";
+import React, {JSX} from "react";
+import CallToActionSection from "./CallToActionSection";
+import DeliveryInfoSection from "./DeliveryInfoSection";
+import FeaturedDishesSection from "./FeaturedDishesSection";
+import FooterSection from "./FooterSection";
+import HeroSection from "./HeroSection";
+import MenuSection from "./MenuSection";
+import { TestimonialsSection } from "./TestimonialSection";
 
 export default function Courier(): JSX.Element {
     return (

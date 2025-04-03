@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import React from "react";
+import React, {JSX} from "react";
 
 export default function FeaturedDishesSection(): JSX.Element {
     return (

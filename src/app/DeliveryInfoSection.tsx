@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Bike, MapPin, Store, Utensils } from "lucide-react";
-import React from "react";
+import React, {JSX} from "react";
 
 export default function DeliveryInfoSection(): JSX.Element {
     // Data for delivery steps

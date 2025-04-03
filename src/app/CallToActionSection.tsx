@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import React from "react";
+import React, {JSX} from "react";
 
 export default function CallToActionSection(): JSX.Element {
     // Statistics data for mapping

@@ -5,7 +5,7 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import React from "react";
+import React, {JSX} from "react";
 
 export const TestimonialsSection = (): JSX.Element => {
     // Navigation menu items

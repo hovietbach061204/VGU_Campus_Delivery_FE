@@ -11,7 +11,7 @@ import {
     Twitter,
     Youtube,
 } from "lucide-react";
-import React from "react";
+import React, {JSX} from "react";
 
 export default function FooterSection(): JSX.Element {
     // Social media links data

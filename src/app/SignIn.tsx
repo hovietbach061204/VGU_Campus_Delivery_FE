@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import React from "react";
+import React, {JSX} from "react";
 
 export default function SignIn(): JSX.Element {
     // Data for form fields

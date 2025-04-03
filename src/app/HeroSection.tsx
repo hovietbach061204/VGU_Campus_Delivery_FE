@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import React from "react";
+import React, {JSX} from "react";
 
 export default function HeroSection(): JSX.Element {
     return (
