@@ -21,6 +21,7 @@ module.exports = {
     'tailwindcss/no-custom-classname': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-require-imports': 'off',
+    'jsx-a11y/label-has-associated-control': 'off',
     'simple-import-sort/imports': [
       2,
       {

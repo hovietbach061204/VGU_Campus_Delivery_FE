@@ -25,12 +25,27 @@ export const UserDropdown = ({ session: { user } }: { session: Session }) => {
   const handleCreateCheckoutSession = async () => {
     setIsPending(true);
 
-    const res = await fetch('/api/stripe/checkout-session');
-    const checkoutSession = await res.json().then(({ session }) => session);
-    const stripe = await loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-    await stripe!.redirectToCheckout({
-      sessionId: checkoutSession.id,
-    });
+    try {
+      const res = await fetch('/api/stripe/checkout-session');
+      const { session: checkoutSession } = await res.json();
+      if (!checkoutSession) {
+        throw new Error('Session not found');
+      }
+
+      const stripe = await loadStripe(
+        env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+      );
+      if (!stripe) {
+        throw new Error('Stripe failed to load');
+      }
+
+      await stripe.redirectToCheckout({
+        sessionId: checkoutSession.id,
+      });
+    } catch (error) {
+      console.error('Checkout session creation failed', error);
+      setIsPending(false);
+    }
   };
 
   return (
@@ -38,8 +53,8 @@ export const UserDropdown = ({ session: { user } }: { session: Session }) => {
       <DropdownMenuTrigger>
         <Image
           className="overflow-hidden rounded-full"
-          src={`${user?.image}`}
-          alt={`${user?.name}`}
+          src={user?.image ?? '/default-avatar.png'} // Fallback to default image if user has no image
+          alt={user?.name ?? 'User'} // Default name if unavailable
           width={32}
           height={32}
         />
@@ -50,12 +65,12 @@ export const UserDropdown = ({ session: { user } }: { session: Session }) => {
         <div className="flex flex-col items-center justify-center p-2">
           <Image
             className="overflow-hidden rounded-full"
-            src={`${user?.image}`}
-            alt={`${user?.name}`}
+            src={user?.image ?? '/default-avatar.png'}
+            alt={user?.name ?? 'User'}
             width={100}
             height={100}
           />
-          <h2 className="py-2 text-lg font-bold">{user?.name}</h2>
+          <h2 className="py-2 text-lg font-bold">{user?.name ?? 'Guest'}</h2>
           <Button
             onClick={handleCreateCheckoutSession}
             disabled={user?.isActive || isPending}

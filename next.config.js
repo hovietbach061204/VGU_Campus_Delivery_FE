@@ -1,4 +1,5 @@
 const { paraglide } = require('@inlang/paraglide-next/plugin');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -8,6 +9,17 @@ const nextConfig = {
         hostname: 'avatars.githubusercontent.com',
       },
     ],
+  },
+  webpack(config, { isServer }) {
+    // Ensure Webpack is being used by Next.js (removes experimental features)
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+
+    return config;
   },
 };
 
