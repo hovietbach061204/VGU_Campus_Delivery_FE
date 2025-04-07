@@ -69,7 +69,7 @@ export const TestimonialsSection = (): JSX.Element => {
 
             {/* Auth section */}
             <div className="flex items-center gap-[35px]">
-              <Link href="/sign-in">
+              <Link href="/SignIn">
                 <div className="text-xl font-medium leading-[26px] text-white [font-family:'Red_Hat_Text-Medium',Helvetica]">
                   Sign in
                 </div>
