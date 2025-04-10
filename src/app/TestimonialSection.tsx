@@ -45,7 +45,7 @@ export const TestimonialsSection = (): JSX.Element => {
             <Image
               className="size-[48px] object-cover sm:size-[54px]"
               alt="Food Delivery Logo"
-              src="/images/logo.png"
+              src="/images/Pizza ico.png"
               width={54}
               height={54}
             />
@@ -84,6 +84,15 @@ export const TestimonialsSection = (): JSX.Element => {
                   className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
                 >
                   Sign in
+                </Button>
+              </Link>
+
+              <Link href="/Userprofile">
+                <Button
+                  variant="outline"
+                  className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
+                >
+                  Profile
                 </Button>
               </Link>
             </div>
