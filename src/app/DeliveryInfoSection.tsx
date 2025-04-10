@@ -4,7 +4,6 @@ import { Bike, MapPin, Store, Utensils } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card';
 
 export default function DeliveryInfoSection(): JSX.Element {
-  // Data for delivery steps
   const deliverySteps = [
     {
       id: 1,
@@ -37,22 +36,22 @@ export default function DeliveryInfoSection(): JSX.Element {
   ];
 
   return (
-    <div className="w-full py-12">
-      <div className="flex flex-wrap justify-between gap-5">
+    <div className="w-full px-4 py-12">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
         {deliverySteps.map((step) => (
           <div key={step.id} className="flex flex-col items-start">
-            <div className="relative mb-6">
-              <div className="flex size-[74px] items-center justify-center rounded-full bg-white">
+            <div className="relative mb-4 sm:mb-6">
+              <div className="flex size-[64px] items-center justify-center rounded-full bg-white shadow-md sm:size-[74px]">
                 {step.icon}
               </div>
             </div>
 
-            <Card className="h-[341px] w-[385px] rounded-[17px] border-none bg-[#ffedd1]">
-              <CardContent className="px-8 pt-8">
-                <h3 className="mb-6 font-['Red_Rose-Bold',Helvetica] text-[22px] font-bold leading-6 text-[#204944]">
+            <Card className="w-full rounded-[17px] border-none bg-[#ffedd1]">
+              <CardContent className="px-6 pb-4 pt-6 sm:px-8 sm:pb-6 sm:pt-8">
+                <h3 className="mb-4 font-['Red_Rose-Bold',Helvetica] text-lg font-bold leading-snug text-[#204944] sm:mb-6 sm:text-xl">
                   {step.title}
                 </h3>
-                <p className="font-['Red_Hat_Text-Regular',Helvetica] text-lg leading-[26px] text-[#777e90]">
+                <p className="font-['Red_Hat_Text-Regular',Helvetica] text-sm leading-relaxed text-[#777e90] sm:text-base">
                   {step.description}
                 </p>
               </CardContent>

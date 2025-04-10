@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import Separator from '@/components/ui/Separator';
 
 export default function FooterSection(): JSX.Element {
-  // Social media links data
   const socialLinks = [
     { icon: <Facebook className="size-5" />, href: '#' },
     { icon: <Twitter className="size-5" />, href: '#' },
@@ -25,7 +24,6 @@ export default function FooterSection(): JSX.Element {
     { icon: <Youtube className="size-5" />, href: '#' },
   ];
 
-  // Quick links data
   const quickLinks = [
     { text: 'Tracking', href: '#' },
     { text: 'Shipping', href: '#' },
@@ -33,7 +31,6 @@ export default function FooterSection(): JSX.Element {
     { text: 'Support', href: '#' },
   ];
 
-  // Contact info data
   const contactInfo = [
     { icon: <Phone className="size-4" />, text: 'Phone number here' },
     { icon: <Mail className="size-4" />, text: 'Email here' },
@@ -41,24 +38,29 @@ export default function FooterSection(): JSX.Element {
   ];
 
   return (
-    <div className="w-full px-4 py-12">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row">
-        {/* Left Column - Logo, Description, Social */}
-        <div className="flex-1">
+    <div className="w-full bg-[#ff785b] px-4 py-12">
+      <div className="mx-auto flex max-w-7xl flex-col gap-12 lg:flex-row">
+        {/* Left Column */}
+        <div className="flex flex-1 flex-col items-center text-center lg:items-start lg:text-left">
           <div className="flex items-center gap-3">
-            <Image className="size-[54px] object-cover" alt="Logo" src="" />
+            <Image
+              className="size-[54px] object-cover"
+              alt="Logo"
+              src="/images/logo.png"
+              width={54}
+              height={54}
+            />
             <h3 className="font-['Red_Rose-Bold',Helvetica] text-[22px] font-bold leading-7 text-white">
-              Food Delivary
+              Food Delivery
             </h3>
           </div>
 
-          <p className="mt-6 max-w-[465px] font-['Red_Hat_Text-Medium',Helvetica] text-lg font-medium leading-7 text-white">
+          <p className="mt-6 max-w-md font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium leading-7 text-white sm:text-lg">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam..
+            eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
 
-          <div className="mt-10 flex gap-3">
+          <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
             {socialLinks.map((link, index) => (
               <a
                 key={index}
@@ -71,18 +73,19 @@ export default function FooterSection(): JSX.Element {
           </div>
         </div>
 
-        {/* Middle Column - Quick Links */}
-        <div className="flex flex-1 flex-col gap-12 md:flex-row">
+        {/* Middle Column */}
+        <div className="flex flex-1 flex-col gap-12 sm:flex-row sm:justify-center">
+          {/* Quick Links */}
           <div>
-            <h3 className="mb-6 font-['Red_Rose-Bold',Helvetica] text-[22px] font-bold leading-7 text-white">
-              Quick link
+            <h3 className="mb-4 font-['Red_Rose-Bold',Helvetica] text-xl font-bold text-white sm:text-[22px]">
+              Quick Links
             </h3>
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
                   <a
                     href={link.href}
-                    className="font-['Red_Hat_Text-Medium',Helvetica] text-lg font-medium leading-[26px] text-white hover:underline"
+                    className="font-['Red_Hat_Text-Medium',Helvetica] text-base text-white hover:underline sm:text-lg"
                   >
                     {link.text}
                   </a>
@@ -91,16 +94,16 @@ export default function FooterSection(): JSX.Element {
             </ul>
           </div>
 
-          {/* Contact Us */}
+          {/* Contact Info */}
           <div>
-            <h3 className="mb-6 font-['Red_Rose-Bold',Helvetica] text-[22px] font-bold leading-7 text-white">
-              Contact us
+            <h3 className="mb-4 font-['Red_Rose-Bold',Helvetica] text-xl font-bold text-white sm:text-[22px]">
+              Contact Us
             </h3>
-            <ul className="space-y-8">
+            <ul className="space-y-6">
               {contactInfo.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
                   <span className="mt-0.5 text-white">{item.icon}</span>
-                  <span className="font-['Red_Hat_Text-Medium',Helvetica] text-lg font-medium leading-[25px] text-white">
+                  <span className="font-['Red_Hat_Text-Medium',Helvetica] text-base text-white sm:text-lg">
                     {item.text}
                   </span>
                 </li>
@@ -111,28 +114,28 @@ export default function FooterSection(): JSX.Element {
 
         {/* Right Column - Subscribe */}
         <div className="flex-1">
-          <h3 className="mb-6 font-['Red_Rose-Bold',Helvetica] text-[22px] font-bold leading-7 text-white">
+          <h3 className="mb-4 font-['Red_Rose-Bold',Helvetica] text-xl font-bold text-white sm:text-[22px]">
             Subscribe
           </h3>
 
           <div className="space-y-6">
             <div>
-              <label className="mb-2 block font-['Red_Hat_Text-Medium',Helvetica] text-lg font-medium leading-7 text-white">
+              <label className="mb-1 block font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium text-white sm:text-lg">
                 Name
               </label>
-              <Input className="border-none bg-transparent p-0 text-white focus-visible:ring-0 focus-visible:ring-offset-0" />
+              <Input className="w-full border-none bg-transparent p-0 text-white placeholder:text-white focus-visible:ring-0 focus-visible:ring-offset-0" />
               <Separator className="mt-2 bg-white/50" />
             </div>
 
             <div>
-              <label className="mb-2 block font-['Red_Hat_Text-Medium',Helvetica] text-lg font-medium leading-7 text-white">
+              <label className="mb-1 block font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium text-white sm:text-lg">
                 Email
               </label>
-              <Input className="border-none bg-transparent p-0 text-white focus-visible:ring-0 focus-visible:ring-offset-0" />
+              <Input className="w-full border-none bg-transparent p-0 text-white placeholder:text-white focus-visible:ring-0 focus-visible:ring-offset-0" />
               <Separator className="mt-2 bg-white/50" />
             </div>
 
-            <Button className="mt-4 rounded-[10px] bg-[#fa9f3d] px-8 py-2 font-['Red_Rose-Regular',Helvetica] text-lg text-white shadow-[0px_4px_0px_#3cbd9640] hover:bg-[#e89435]">
+            <Button className="mt-4 rounded-[10px] bg-[#fa9f3d] px-6 py-2 text-base font-semibold text-white hover:bg-[#e89435] sm:text-lg">
               Subscribe
             </Button>
           </div>

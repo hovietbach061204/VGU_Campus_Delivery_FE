@@ -1,49 +1,39 @@
 import React, { JSX } from 'react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function SignIn(): JSX.Element {
-  // Data for form fields
   const formFields = [
     { id: 'email', placeholder: 'Email', type: 'email' },
     { id: 'password', placeholder: 'Password', type: 'password' },
   ];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#fff8f6]">
-      <div className="relative flex h-[812px] w-full max-w-[375px] flex-col items-center px-6">
+    <div className="flex min-h-screen items-center justify-center bg-[#fff8f6] px-4 py-8">
+      <div className="relative flex w-full max-w-[375px] flex-col items-center sm:max-w-md md:max-w-lg lg:max-w-xl">
         {/* Title */}
-        <h1 className="mb-12 mt-[129px] font-['Inter-Regular',Helvetica] text-4xl font-normal text-[#ff785b]">
+        <h1 className="mb-12 mt-16 font-['Inter-Regular',Helvetica] text-3xl font-normal text-[#ff785b] sm:text-4xl">
           VGU Delivery
         </h1>
 
         {/* Form */}
-        <form className="flex w-full flex-col gap-8">
-          {/* Email Input */}
-          <div className="relative">
-            <Input
-              id={formFields[0].id}
-              type={formFields[0].type}
-              placeholder={formFields[0].placeholder}
-              className="h-[50px] rounded-[33px] border border-[#ff785b] px-7 py-3 font-['Avenir-Roman',Helvetica] text-[15px] text-[#858c82e6] placeholder:text-[#858c82e6]"
-            />
-          </div>
+        <form className="flex w-full flex-col gap-6 sm:gap-8">
+          {formFields.map((field) => (
+            <div key={field.id} className="relative">
+              <Input
+                id={field.id}
+                type={field.type}
+                placeholder={field.placeholder}
+                className="h-12 w-full rounded-[33px] border border-[#ff785b] px-6 font-['Avenir-Roman',Helvetica] text-sm text-[#858c82e6] placeholder:text-[#858c82e6]"
+              />
+            </div>
+          ))}
 
-          {/* Password Input */}
-          <div className="relative">
-            <Input
-              id={formFields[1].id}
-              type={formFields[1].type}
-              placeholder={formFields[1].placeholder}
-              className="h-[50px] rounded-[33px] border px-7 py-3 font-['Avenir-Roman',Helvetica] text-[15px] text-[#858c82e6] placeholder:text-[#858c82e6]"
-            />
-          </div>
-
-          {/* Submit Button */}
           <Button
             type="submit"
-            className="mx-auto mt-12 h-[39px] w-[219px] rounded-[33px] bg-[#ff785b] font-['Avenir-Heavy',Helvetica] text-sm text-white hover:bg-[#ff785b]/90"
+            className="mx-auto mt-10 h-[42px] w-[180px] rounded-[33px] bg-[#ff785b] font-['Avenir-Heavy',Helvetica] text-sm text-white hover:bg-[#ff785b]/90"
           >
             Eat Away!
           </Button>
@@ -51,12 +41,14 @@ export default function SignIn(): JSX.Element {
 
         {/* Sign Up Button */}
         <div className="absolute inset-x-0 bottom-0 w-full">
-          <Button
-            variant="default"
-            className="h-[68px] w-full rounded-[33px_33px_0px_0px] bg-[#ff785b] font-['Avenir-Roman',Helvetica] text-xl text-white shadow-[0px_4px_4px_#ff785b] hover:bg-[#ff785b]/90"
-          >
-            Sign Up
-          </Button>
+          <Link href="/Register" className="block">
+            <Button
+              variant="default"
+              className="h-[60px] w-full rounded-t-[33px] bg-[#ff785b] font-['Avenir-Roman',Helvetica] text-lg text-white shadow-md hover:bg-[#ff785b]/90"
+            >
+              Sign Up
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

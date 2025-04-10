@@ -6,130 +6,132 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/Card';
 
 export default function MenuSection() {
-  // Menu items data for mapping
   const menuItems = [
     {
       id: 1,
       name: 'Stewed cabbage with sauce',
       price: '$5.90',
-      image: '',
+      image: '/images/cabbage.png',
       featured: false,
     },
     {
       id: 2,
       name: 'Puree soup with turkey pieces',
       price: '$7.55',
-      image: '',
+      image: '/images/soup.png',
       featured: true,
     },
     {
       id: 3,
       name: 'Chicken with vegetables',
       price: '$3.39',
-      image: '',
+      image: '/images/chicken.png',
       featured: false,
     },
     {
       id: 4,
       name: 'Chicken with vegetables',
       price: '$3.39',
-      image: '',
+      image: '/images/chicken.png',
       featured: false,
     },
     {
       id: 5,
       name: 'Traditional Greek salad',
       price: '$4.99',
-      image: '',
+      image: '/images/greek-salad.png',
       featured: false,
     },
     {
       id: 6,
       name: 'Three-Meat Special Lasagna',
       price: '$5.10',
-      image: '',
+      image: '/images/lasagna.png',
       featured: false,
     },
     {
       id: 7,
       name: 'Veggie Tagliatelle Bolognese',
       price: '$4.80',
-      image: '',
+      image: '/images/veggie.png',
       featured: false,
     },
     {
       id: 8,
       name: 'Veggie Tagliatelle Bolognese',
       price: '$4.80',
-      image: '',
+      image: '/images/veggie.png',
       featured: false,
     },
   ];
 
   return (
-    <section className="w-full rounded-[0px_0px_0px_250px] bg-[#29b0674c] px-[170px] py-[109px]">
-      <div className="flex flex-col items-center gap-[65px]">
-        <h2 className="text-center text-[50px] font-bold leading-[58px] tracking-[0.25px] text-[#2e2c49] [font-family:'Red_Rose-Bold',Helvetica]">
+    <section className="w-full bg-[#29b0674c] px-4 py-16 lg:rounded-bl-[250px] lg:px-[80px] xl:px-[170px]">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-12">
+        {/* Heading */}
+        <h2 className="text-center text-3xl font-bold leading-tight tracking-tight text-[#2e2c49] [font-family:'Red_Rose-Bold',Helvetica] sm:text-4xl lg:text-[50px]">
           Popular dishes with delivery
         </h2>
 
-        <p className="w-[663px] text-center text-lg font-normal leading-7 tracking-[0.09px] text-[#777e90] [font-family:'Red_Hat_Text-Regular',Helvetica]">
+        {/* Description */}
+        <p className="max-w-xl text-center text-base leading-7 text-[#777e90] [font-family:'Red_Hat_Text-Regular',Helvetica] sm:text-lg">
           The most delicious and healthy dishes from our chefs. You can order
           this meal separately or as part of a meal plan.
         </p>
 
-        <div className="flex w-full flex-col items-center gap-[104px]">
-          <div className="flex w-full flex-wrap items-start gap-[79px_60px]">
-            {menuItems.map((item) => (
-              <div key={item.id} className="w-[350px]">
-                <Card
-                  className={`h-[458px] w-[350px] rounded-[28px] border-2 ${
-                    item.featured
-                      ? 'bg-[#fa9f3d] shadow-[0px_28px_63px_-13px_#fa9f3d4c]'
-                      : 'border-[#e5efff] bg-white'
-                  }`}
+        {/* Menu Items */}
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-10 lg:gap-y-14 xl:grid-cols-4">
+          {menuItems.map((item) => (
+            <Card
+              key={item.id}
+              className={`mx-auto h-[458px] w-full max-w-[350px] rounded-[28px] border-2 ${
+                item.featured
+                  ? 'bg-[#fa9f3d] shadow-[0px_28px_63px_-13px_#fa9f3d4c]'
+                  : 'border-[#e5efff] bg-white'
+              }`}
+            >
+              <CardContent className="relative flex h-full flex-col items-center p-0">
+                <div className="mt-4 size-[230px] sm:size-[250px]">
+                  <Image
+                    className="size-full rounded-xl object-cover"
+                    alt={item.name}
+                    src={item.image}
+                    width={250}
+                    height={250}
+                  />
+                </div>
+
+                <div
+                  className={`mt-4 w-[90%] text-center text-xl font-bold leading-snug sm:text-2xl ${
+                    item.featured ? 'text-white' : 'text-[#4d4c66]'
+                  } [font-family:'Red_Rose-Bold',Helvetica]`}
                 >
-                  <CardContent className="relative h-full p-0">
-                    <div className="mx-auto mt-px size-[296px]">
-                      <Image
-                        className="size-full object-cover"
-                        alt={item.name}
-                        src={item.image}
-                      />
-                    </div>
+                  {item.name}
+                </div>
 
-                    <div
-                      className={`mx-auto mt-4 w-[267px] text-center text-2xl font-bold leading-[34px] tracking-normal ${
-                        item.featured ? 'text-white' : 'text-[#4d4c66]'
-                      } [font-family:'Red_Rose-Bold',Helvetica]`}
-                    >
-                      {item.name}
-                    </div>
+                <div className="absolute bottom-[30px] left-6 text-xl font-normal text-[#2e2c49] [font-family:'Red_Rose-Regular',Helvetica] sm:text-2xl">
+                  {item.price}
+                </div>
 
-                    <div className="absolute bottom-[30px] left-8 whitespace-nowrap text-3xl font-normal leading-6 tracking-normal text-[#2e2c49] [font-family:'Red_Rose-Regular',Helvetica]">
-                      {item.price}
-                    </div>
-
-                    <Button
-                      className={`absolute bottom-[24px] right-[36px] size-[38px] p-0 ${
-                        item.featured && item.id === 2
-                          ? 'bg-[#fffefc]'
-                          : 'bg-[#fa9f3d]'
-                      } rounded-lg`}
-                      size="icon"
-                    >
-                      <ShoppingCartIcon className="size-5" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-
-          <Button className="h-[60px] w-[205px] rounded-[10px] bg-[#fdad00] text-[22px] font-bold leading-[26px] tracking-normal shadow-[0px_8px_12px_#ffeaa273] [font-family:'Red_Rose-Bold',Helvetica] hover:bg-[#fdad00]/90">
-            See all menu
-          </Button>
+                <Button
+                  className={`absolute bottom-[24px] right-[24px] size-[38px] p-0 ${
+                    item.featured && item.id === 2
+                      ? 'bg-[#fffefc]'
+                      : 'bg-[#fa9f3d]'
+                  } rounded-lg`}
+                  size="icon"
+                >
+                  <ShoppingCartIcon className="size-5" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+
+        {/* CTA Button */}
+        <Button className="h-[52px] w-[180px] rounded-[10px] bg-[#fdad00] text-lg font-bold text-white shadow-[0px_8px_12px_#ffeaa273] [font-family:'Red_Rose-Bold',Helvetica] hover:bg-[#fdad00]/90 sm:text-[22px]">
+          See all menu
+        </Button>
       </div>
     </section>
   );

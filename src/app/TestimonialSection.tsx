@@ -2,15 +2,15 @@ import React, { JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/button'; // Updated import for Button
+import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from '@/components/ui/NavigationMenu'; // Import necessary NavigationMenu components
+} from '@/components/ui/NavigationMenu';
+
 export const TestimonialsSection = (): JSX.Element => {
-  // Navigation menu items with `href` added to each item
   const navItems = [
     { label: 'Home', isBold: true, href: '#' },
     { label: 'Tracking', isBold: false, href: '#' },
@@ -20,41 +20,50 @@ export const TestimonialsSection = (): JSX.Element => {
   ];
 
   return (
-    <header className="relative w-full bg-[#ff785b] py-10">
+    <header className="relative w-full bg-[#ff785b] px-4 py-8">
       <div className="relative overflow-hidden">
         {/* Decorative vectors */}
-        <div className="absolute left-0 top-[5px] h-[194px] w-[627px]">
-          <Image className="size-full" alt="Decorative vector" src="" />
+        <div className="absolute left-0 top-[5px] hidden h-[194px] w-[627px] lg:block">
+          <Image
+            className="size-full"
+            alt="Decorative vector"
+            src="/images/vector-left.png"
+          />
+        </div>
+        <div className="absolute bottom-0 right-0 hidden h-[152px] w-[627px] lg:block">
+          <Image
+            className="size-full"
+            alt="Decorative vector"
+            src="/images/vector-right.png"
+          />
         </div>
 
-        <div className="absolute bottom-0 right-0 h-[152px] w-[627px]">
-          <Image className="size-full" alt="Decorative vector" src="" />
-        </div>
-
-        {/* Main navigation container */}
-        <div className="container mx-auto flex items-center justify-between px-4">
-          {/* Logo and brand name */}
-          <div className="flex items-center gap-5">
+        {/* Navigation content */}
+        <div className="container mx-auto flex flex-col items-center justify-between gap-6 md:flex-row md:gap-8">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
             <Image
-              className="size-[54px] object-cover"
+              className="size-[48px] object-cover sm:size-[54px]"
               alt="Food Delivery Logo"
-              src=""
+              src="/images/logo.png"
+              width={54}
+              height={54}
             />
-            <div className="text-[22px] font-bold leading-7 text-white [font-family:'Red_Rose-Bold',Helvetica]">
+            <span className="text-xl font-bold text-white [font-family:'Red_Rose-Bold',Helvetica] sm:text-[22px]">
               Food Delivery
-            </div>
+            </span>
           </div>
 
-          {/* Navigation and auth section */}
-          <div className="flex items-center gap-[275px]">
-            {/* Main navigation */}
+          {/* Navigation + Auth combined in one row */}
+          <div className="flex flex-col items-center gap-4 md:flex-row md:gap-12">
+            {/* Navigation Menu */}
             <NavigationMenu>
-              <NavigationMenuList className="flex items-center gap-[45px]">
+              <NavigationMenuList className="flex items-center gap-6 sm:gap-[30px] md:gap-[45px]">
                 {navItems.map((item, index) => (
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
-                      href={item.href} // Ensure href is passed to NavigationMenuLink
-                      className={`text-[22px] leading-[26px] text-white ${
+                      href={item.href}
+                      className={`text-base text-white sm:text-lg md:text-xl ${
                         item.isBold
                           ? "font-bold [font-family:'Red_Hat_Text-Bold',Helvetica]"
                           : "font-medium [font-family:'Red_Hat_Text-Medium',Helvetica]"
@@ -67,19 +76,16 @@ export const TestimonialsSection = (): JSX.Element => {
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Auth section */}
-            <div className="flex items-center gap-[35px]">
+            {/* Auth Buttons side by side */}
+            <div className="flex items-center gap-4">
               <Link href="/SignIn">
-                <div className="text-xl font-medium leading-[26px] text-white [font-family:'Red_Hat_Text-Medium',Helvetica]">
+                <Button
+                  variant="outline"
+                  className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
+                >
                   Sign in
-                </div>
+                </Button>
               </Link>
-              <Button
-                variant="outline"
-                className="h-[47px] w-[129px] rounded-[10px] border-2 border-solid border-white bg-transparent text-xl font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica]"
-              >
-                Register
-              </Button>
             </div>
           </div>
         </div>

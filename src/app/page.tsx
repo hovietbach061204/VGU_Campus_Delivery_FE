@@ -16,11 +16,11 @@ export default function Courier(): JSX.Element {
         <main>
           {/* Testimonials section with heading */}
           <section className="relative">
-            <div className="mx-auto w-full max-w-[869px] py-12 text-center">
-              <h2 className="mb-6 text-[50px] font-bold leading-[56px] tracking-[-1px] text-[#204944]">
+            <div className="mx-auto w-full max-w-[869px] px-4 py-12 text-center sm:px-6 lg:px-8">
+              <h2 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-[#204944] sm:text-4xl md:text-5xl">
                 What our Clients Say
               </h2>
-              <p className="text-lg font-normal leading-[30px] text-[#777e90]">
+              <p className="text-base font-normal leading-relaxed text-[#777e90] sm:text-lg">
                 Duis aute irure dolor in reprehenderit in voluptate cillum
                 dolore eu fugiat nulla pariatur.
               </p>
@@ -56,8 +56,8 @@ export default function Courier(): JSX.Element {
           {/* Footer section */}
           <section className="bg-[#ff785b]">
             <FooterSection />
-            <div className="container mx-auto py-4 text-center">
-              <p className="text-[22px] font-medium text-white">
+            <div className="container mx-auto p-4 text-center">
+              <p className="text-base font-medium text-white sm:text-lg md:text-xl">
                 Copyright 2023 | Uitaskca - All rights Reserved
               </p>
             </div>
