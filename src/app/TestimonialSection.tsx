@@ -1,5 +1,7 @@
+'use client';
+
 import React, { JSX } from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -20,43 +22,38 @@ export const TestimonialsSection = (): JSX.Element => {
   ];
 
   return (
-    <header className="relative w-full bg-[#ff785b] px-4 py-8">
-      <div className="relative overflow-hidden">
-        {/* Decorative vectors */}
-        <div className="absolute left-0 top-[5px] hidden h-[194px] w-[627px] lg:block">
+    <header className="w-full bg-[#ff785b] px-4 py-8">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row md:gap-8">
+        {/* Left Decorative Vector */}
+        {/* <div className="hidden w-full justify-start lg:flex">
           <Image
-            className="size-full"
-            alt="Decorative vector"
+            className="h-[194px] w-[627px] object-contain"
+            alt=""
+            aria-hidden="true"
             src="/images/vector-left.png"
+            width={627}
+            height={194}
           />
-        </div>
-        <div className="absolute bottom-0 right-0 hidden h-[152px] w-[627px] lg:block">
-          <Image
-            className="size-full"
-            alt="Decorative vector"
-            src="/images/vector-right.png"
-          />
-        </div>
+        </div> */}
 
-        {/* Navigation content */}
-        <div className="container mx-auto flex flex-col items-center justify-between gap-6 md:flex-row md:gap-8">
+        {/* Logo + Nav + Buttons */}
+        <div className="flex w-full flex-col items-center justify-between gap-6 md:flex-row md:gap-12">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <Image
+            {/* <Image
               className="size-[48px] object-cover sm:size-[54px]"
               alt="Food Delivery Logo"
               src="/images/Pizza ico.png"
               width={54}
               height={54}
-            />
+            /> */}
             <span className="text-xl font-bold text-white [font-family:'Red_Rose-Bold',Helvetica] sm:text-[22px]">
               Food Delivery
             </span>
           </div>
 
-          {/* Navigation + Auth combined in one row */}
-          <div className="flex flex-col items-center gap-4 md:flex-row md:gap-12">
-            {/* Navigation Menu */}
+          {/* Navigation */}
+          <nav>
             <NavigationMenu>
               <NavigationMenuList className="flex items-center gap-6 sm:gap-[30px] md:gap-[45px]">
                 {navItems.map((item, index) => (
@@ -75,29 +72,41 @@ export const TestimonialsSection = (): JSX.Element => {
                 ))}
               </NavigationMenuList>
             </NavigationMenu>
+          </nav>
 
-            {/* Auth Buttons side by side */}
-            <div className="flex items-center gap-4">
-              <Link href="/SignIn">
-                <Button
-                  variant="outline"
-                  className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
-                >
-                  Sign in
-                </Button>
-              </Link>
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-4">
+            <Link href="/SignIn">
+              <Button
+                variant="outline"
+                className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
+              >
+                Sign in
+              </Button>
+            </Link>
 
-              <Link href="/Userprofile">
-                <Button
-                  variant="outline"
-                  className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
-                >
-                  Profile
-                </Button>
-              </Link>
-            </div>
+            <Link href="/UserProfile">
+              <Button
+                variant="outline"
+                className="h-[44px] w-[110px] rounded-[10px] border-2 border-white bg-transparent text-base font-medium text-white [font-family:'Red_Hat_Text-Medium',Helvetica] hover:bg-white/10 sm:h-[47px] sm:w-[129px] sm:text-xl"
+              >
+                Profile
+              </Button>
+            </Link>
           </div>
         </div>
+
+        {/* Right Decorative Vector */}
+        {/* <div className="hidden w-full justify-end lg:flex">
+          <Image
+            className="h-[152px] w-[627px] object-contain"
+            alt=""
+            aria-hidden="true"
+            src="/components/images/Pizza ico.png"
+            width={627}
+            height={152}
+          />
+        </div> */}
       </div>
     </header>
   );

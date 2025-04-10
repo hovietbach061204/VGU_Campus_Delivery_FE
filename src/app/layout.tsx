@@ -14,11 +14,19 @@ const RootLayout = ({ children }: PropsWithChildren) => {
   return (
     <LanguageProvider>
       <html lang={languageTag()} suppressHydrationWarning>
-        <body className={cn('min-h-screen font-sans', fonts)}>
+        <body
+          className={cn(
+            'flex min-h-screen flex-col justify-between font-sans',
+            fonts
+          )}
+        >
           <ThemeProvider attribute="class">
-            {/* <Navbar /> */}
-            {children}
-            <ThemeSwitcher className="absolute bottom-5 right-5 z-10" />
+            <main className="grow">{children}</main>
+
+            {/* ThemeSwitcher in normal layout flow */}
+            <div className="flex justify-end px-4 pb-4">
+              <ThemeSwitcher />
+            </div>
 
             <Toaster />
           </ThemeProvider>
