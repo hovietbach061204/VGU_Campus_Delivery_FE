@@ -120,17 +120,17 @@ export default function FooterSection(): JSX.Element {
 
           <div className="space-y-6">
             <div>
-              <label className="mb-1 block font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium text-white sm:text-lg">
+              {/*<label className="mb-1 block font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium text-white sm:text-lg">
                 Name
-              </label>
+              </label>*/}
               <Input className="w-full border-none bg-transparent p-0 text-white placeholder:text-white focus-visible:ring-0 focus-visible:ring-offset-0" />
               <Separator className="mt-2 bg-white/50" />
             </div>
 
             <div>
-              <label className="mb-1 block font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium text-white sm:text-lg">
+              {/* <label className="mb-1 block font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium text-white sm:text-lg">
                 Email
-              </label>
+              </label>*/}
               <Input className="w-full border-none bg-transparent p-0 text-white placeholder:text-white focus-visible:ring-0 focus-visible:ring-offset-0" />
               <Separator className="mt-2 bg-white/50" />
             </div>
