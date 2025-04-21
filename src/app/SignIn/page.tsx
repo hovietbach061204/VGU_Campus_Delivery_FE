@@ -26,7 +26,7 @@ export default function SignIn() {
       localStorage.setItem('token', token);
 
       // Redirect after login
-      router.push('/dashboard'); // Adjust route as needed
+      router.push('/'); // Adjust route as needed
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
