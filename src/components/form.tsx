@@ -5,12 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { helloAction } from '@/actions/hello-action';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Form } from '@/components/ui/form';
+
 import { useToast } from '@/components/ui/use-toast';
-import { cn } from '@/lib/utils';
-import * as m from '@/paraglide/messages';
 
 const formSchema = z.object({
   name: z.string().min(3),
@@ -36,7 +33,7 @@ export const HeroForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-3">
-        <FormField
+        {/* <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
@@ -56,7 +53,7 @@ export const HeroForm = () => {
         />
         <Button variant="secondary" type="submit">
           {m.submit_form()}
-        </Button>
+        </Button> */}
       </form>
     </Form>
   );

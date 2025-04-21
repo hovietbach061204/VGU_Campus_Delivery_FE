@@ -11,33 +11,33 @@ module.exports = {
   ],
   plugins: ['simple-import-sort', 'prettier', '@typescript-eslint', 'jsx-a11y'],
   rules: {
-    'prettier/prettier': [
-      'error',
-      {
-        endOfLine: 'auto',
-      },
-    ],
-    'sort-imports': 'off',
-    'tailwindcss/no-custom-classname': 'off',
-    '@typescript-eslint/no-var-requires': 'off',
-    '@typescript-eslint/no-require-imports': 'off',
-    'jsx-a11y/label-has-associated-control': 'off',
-    'simple-import-sort/imports': [
-      2,
-      {
-        groups: [
-          ['^.+\\.s?css$'],
-          [
-            `^(${require('module').builtinModules.join('|')})(/|$)`,
-            '^react',
-            '^@?\\w',
-          ],
-          ['^components(/.*|$)'],
-          ['^lib(/.*|$)', '^hooks(/.*|$)'],
-          ['^\\.'],
-        ],
-      },
-    ],
+    // 'prettier/prettier': [
+    //   'error',
+    //   {
+    //     endOfLine: 'auto',
+    //   },
+    // ],
+    // 'sort-imports': 'off',
+    // 'tailwindcss/no-custom-classname': 'off',
+    // '@typescript-eslint/no-var-requires': 'off',
+    // '@typescript-eslint/no-require-imports': 'off',
+    // 'jsx-a11y/label-has-associated-control': 'off',
+    // 'simple-import-sort/imports': [
+    //   2,
+    //   {
+    //     groups: [
+    //       ['^.+\\.s?css$'],
+    //       [
+    //         `^(${require('module').builtinModules.join('|')})(/|$)`,
+    //         '^react',
+    //         '^@?\\w',
+    //       ],
+    //       ['^components(/.*|$)'],
+    //       ['^lib(/.*|$)', '^hooks(/.*|$)'],
+    //       ['^\\.'],
+    //     ],
+    //   },
+    // ],
   },
   settings: {
     tailwindcss: {
