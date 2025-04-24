@@ -20,45 +20,44 @@ export default function OrderStatus() {
   };
 
   const handleCancelOrder = async () => {
-    // if (!order) return;
-    // await deleteDoc(doc(db, 'orders', 'jrttNvupbhUAtyGxfi34'));
     alert('Order has been cancelled.');
-    router.push('/'); // Redirect to homepage or restaurant page
+    router.push('/');
   };
 
   const handleNewOrder = () => {
-    router.push('/'); // Redirect to homepage or order page
+    router.push('/');
   };
-
-  // if (!order) {
-  //   return (
-  //     <main className="min-h-screen p-8 bg-white text-gray-800 flex items-center justify-center">
-  //       <p className="text-[#ff785b] text-lg font-medium">Loading order...</p>
-  //     </main>
-  //   );
-  // }
 
   const statusColor = order.delivery_man_id
     ? 'text-green-600'
     : 'text-yellow-500';
 
   return (
-    <main className="min-h-screen bg-white p-8 text-gray-800">
-      <div className="mx-auto max-w-xl rounded border bg-white p-6 shadow-md">
-        <h1 className="mb-4 text-2xl font-bold text-[#ff785b]">
-          🎉 Your Order Has Been Placed!
+    <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-8 text-gray-800">
+      <div className="mx-auto max-w-xl rounded-lg border bg-white p-6 shadow-md">
+        <h1 className="mb-4 flex items-center gap-2 text-3xl font-bold text-[#ff785b]">
+          🧾 Order Confirmation
         </h1>
 
-        <div className="mb-4 text-sm text-gray-600">
-          Thank you for your purchase. Your order is being processed.
+        <div className="mb-4 text-base text-gray-600">
+          <p className="mb-2">
+            🎉{' '}
+            <span className="font-semibold">
+              Your order has been placed successfully!
+            </span>
+          </p>
+          <p className="text-sm">
+            We are currently processing your order and will notify you once a
+            driver is assigned.
+          </p>
         </div>
 
-        <div className="mb-4">
-          <p className="text-base">
+        <div className="mb-4 text-base">
+          <p>
             <strong>Order ID:</strong>{' '}
             <span className="text-gray-700">{order.order_id}</span>
           </p>
-          <p className="text-base">
+          <p>
             <strong>Status:</strong>{' '}
             <span className={`font-semibold ${statusColor}`}>
               {order.status_name}
@@ -83,21 +82,21 @@ export default function OrderStatus() {
         <div className="mt-6 flex gap-4">
           <button
             onClick={handleCancelOrder}
-            className="w-full rounded bg-red-500 py-2 font-semibold text-white hover:bg-red-600"
+            className="w-full rounded bg-red-500 py-2 font-semibold text-white shadow-sm hover:bg-red-600"
           >
             Cancel Order
           </button>
           <button
             onClick={handleNewOrder}
-            className="w-full rounded bg-[#ff785b] py-2 font-semibold text-white hover:bg-[#ff5b3b]"
+            className="w-full rounded bg-[#ff785b] py-2 font-semibold text-white shadow-sm hover:bg-[#ff5b3b]"
           >
             Place Another Order
           </button>
         </div>
 
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            You will be notified once your order is on its way!
+            📦 You will be updated on the order progress shortly.
           </p>
         </div>
       </div>
