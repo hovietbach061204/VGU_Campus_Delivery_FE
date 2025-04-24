@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { createOrder } from '@/app/api/order';
+import { useRouter } from 'next/navigation';
+import { ensureAuthenticated } from '@/lib/auth';
 
 const categories = [
   {
-    name: 'Abo',
+    name: 'ABO',
     items: [
       { name: 'BANH MI', price: 20000, description: 'Banh mi thit nguoi' },
       { name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
@@ -56,7 +57,7 @@ interface OrderItem {
 export default function Page() {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const currentCategory = order.length > 0 ? order[0].category : null;
-
+  const router = useRouter();
   const addToOrder = (
     item: { name: string; price: number; description: string },
     category: string
@@ -120,19 +121,46 @@ export default function Page() {
 
   const handlePlaceOrder = async () => {
     if (order.length === 0) return;
-    const orderData = {
-      order_id: `ORDER_${Date.now()}`,
-      purchaser_id: 'HARDCODED_USER_ID',
-      delivery_man_id: '',
-      status: 'PENDING',
-      total_price: getTotal(),
-      created_at: new Date(),
-      items: order,
-    };
 
-    await addDoc(collection(db, 'orders'), orderData);
-    alert('Order placed successfully!');
-    setOrder([]);
+    let token: string;
+    let userId: string;
+
+    try {
+      const auth = ensureAuthenticated();
+      token = auth.token;
+      userId = auth.userId;
+    } catch (err) {
+      alert('You must be logged in to place an order');
+      console.log(err);
+      router.push('/SignIn');
+      return;
+    }
+
+    try {
+      const foodItems = order.map((item) => ({
+        name: item.name.toLowerCase().replace(/\s/g, '-'),
+        quantity: item.qty,
+      }));
+
+      const response = await createOrder(token, {
+        purchaserId: userId,
+        eateryName: order[0].category,
+        foodItems,
+      });
+
+      const responseData = await response.json(); // parse the response body
+      const orderId = responseData.result?.orderId;
+
+      if (!orderId) {
+        throw new Error('Order ID not returned from server');
+      }
+
+      alert('Order placed successfully!');
+      setOrder([]);
+      router.push(`/OrderStatus?orderId=${orderId}`); // ✅ Pass orderId to status page
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
   };
 
   return (

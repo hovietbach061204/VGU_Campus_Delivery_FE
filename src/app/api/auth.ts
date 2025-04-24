@@ -1,7 +1,7 @@
 export async function loginUser(username: string, password: string) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/auth/login`,
+      `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/auth/token`,
       {
         method: 'POST',
         headers: {

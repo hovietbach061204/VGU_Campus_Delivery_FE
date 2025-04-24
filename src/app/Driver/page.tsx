@@ -1,40 +1,41 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { acceptOrder } from '@/app/api/order';
+import { ensureAuthenticated } from '@/lib/auth';
 
-const mockOrders = [
-  {
-    id: 'order1',
-    order_id: 'ORDER_001',
-    purchaser_id: 'USER123',
-    delivery_man_id: '',
-    status: 'PENDING',
-    total_price: 75000,
-    restaurant_name: 'ABO',
-    items: [
-      { name: 'BANH MI', quantity: 2, price: 20000 },
-      { name: 'TRA SUA', quantity: 1, price: 25000 },
-    ],
-  },
-  {
-    id: 'order2',
-    order_id: 'ORDER_002',
-    purchaser_id: 'USER456',
-    delivery_man_id: '',
-    status: 'PENDING',
-    total_price: 120000,
-    restaurant_name: 'Milk Tea Heaven',
-    items: [
-      { name: 'BUN CA', quantity: 1, price: 30000 },
-      { name: 'TRA SUA', quantity: 2, price: 25000 },
-      { name: 'FRIED TOFU', quantity: 1, price: 40000 },
-    ],
-  },
-];
+type FirestoreOrder = {
+  order_id: string;
+  purchaser_id: string;
+  delivery_man_id: string | null;
+  status: string;
+  total_price: number;
+  eateryName: string;
+  foodItems: {
+    id: string;
+    quantity: number;
+  }[];
+};
 
 export default function DriverOrderListener() {
-  const [orders, setOrders] = useState(mockOrders);
+  const [orders, setOrders] = useState<FirestoreOrder[]>([]);
   const [sortBy, setSortBy] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const q = query(collection(db, 'orders'), where('status', '==', 'PENDING'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const liveOrders = snapshot.docs.map((doc) => {
+        const data = doc.data() as Omit<FirestoreOrder, 'id'>;
+        return { id: doc.id, ...data };
+      });
+      setOrders(liveOrders);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const sortedOrders = [...orders].sort((a, b) =>
     sortBy === 'asc'
@@ -42,14 +43,31 @@ export default function DriverOrderListener() {
       : b.total_price - a.total_price
   );
 
-  const handleAccept = (orderId: string) => {
-    alert(`Accepted order ${orderId}`);
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+  const handleAccept = async (orderId: string) => {
+    let token: string;
+    let driverId: string;
+
+    try {
+      const auth = ensureAuthenticated();
+      token = auth.token;
+      driverId = auth.userId;
+    } catch (err) {
+      alert('You must be logged in as a driver to accept orders.');
+      console.log(err);
+      return;
+    }
+
+    try {
+      const result = await acceptOrder(orderId, driverId, token);
+      alert(result.status);
+    } catch (err: any) {
+      alert(`Failed to accept order: ${err.message}`);
+    }
   };
 
   const handlePass = (orderId: string) => {
     alert(`Passed on order ${orderId}`);
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    setOrders((prev) => prev.filter((o) => o.order_id !== orderId));
   };
 
   return (
@@ -77,7 +95,7 @@ export default function DriverOrderListener() {
           <ul className="space-y-5">
             {sortedOrders.map((order) => (
               <li
-                key={order.id}
+                key={order.order_id}
                 className="rounded-xl border bg-white p-5 shadow"
               >
                 <div className="mb-2">
@@ -90,7 +108,7 @@ export default function DriverOrderListener() {
                   <p className="text-sm text-gray-600">
                     Restaurant:{' '}
                     <span className="font-semibold text-[#ff785b]">
-                      {order.restaurant_name}
+                      {order.eateryName}
                     </span>
                   </p>
                   <p className="mb-2 text-sm text-gray-600">
@@ -106,10 +124,9 @@ export default function DriverOrderListener() {
                     Items:
                   </p>
                   <ul className="list-disc pl-4 text-sm text-gray-700">
-                    {order.items.map((item, idx) => (
+                    {(order.foodItems ?? []).map((item, idx) => (
                       <li key={idx}>
-                        {item.name} × {item.quantity} —{' '}
-                        {(item.price * item.quantity).toLocaleString()}đ
+                        {item.id} × {item.quantity}
                       </li>
                     ))}
                   </ul>
@@ -117,13 +134,13 @@ export default function DriverOrderListener() {
 
                 <div className="mt-4 flex gap-3">
                   <button
-                    onClick={() => handleAccept(order.id)}
+                    onClick={() => handleAccept(order.order_id)}
                     className="flex-1 rounded bg-green-600 py-2 font-medium text-white shadow-sm hover:bg-green-700"
                   >
                     Accept Order
                   </button>
                   <button
-                    onClick={() => handlePass(order.id)}
+                    onClick={() => handlePass(order.order_id)}
                     className="flex-1 rounded bg-gray-300 py-2 font-medium text-gray-800 shadow-sm hover:bg-gray-400"
                   >
                     Pass

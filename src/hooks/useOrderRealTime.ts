@@ -3,11 +3,12 @@ import { db } from '../lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 type Order = {
-  order_id: number;
-  purchaser_id: number;
-  status_id: number;
-  status_name: string;
+  order_id: string;
+  purchaser_id: string;
+  status: string;
   delivery_man_id: string | null;
+  total_price?: string;
+  created_at?: any;
 };
 
 export function useOrderRealtime(orderId: string | number) {

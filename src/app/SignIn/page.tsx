@@ -20,10 +20,13 @@ export default function SignIn() {
     setError('');
 
     try {
-      const { token } = await loginUser(username, password);
+      const response = await loginUser(username, password);
+      const token = response.result?.token;
+      const userId = response.result?.userId;
 
-      // Store token in localStorage (or cookies for SSR)
-      localStorage.setItem('token', token);
+      console.log('login token:', token);
+      localStorage.setItem('access_token', token); // use consistent key here!
+      localStorage.setItem('user_id', userId);
 
       // Redirect after login
       router.push('/'); // Adjust route as needed

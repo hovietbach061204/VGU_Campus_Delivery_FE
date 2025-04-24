@@ -1,23 +1,14 @@
 'use client';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { useOrderRealtime } from '../../hooks/useOrderRealTime';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { doc, deleteDoc } from 'firebase/firestore';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { db } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useOrderRealtime } from '@/hooks/useOrderRealTime';
 
 export default function OrderStatus() {
-  // const order = useOrderRealtime('jrttNvupbhUAtyGxfi34');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
 
-  // TEMP MOCK ORDER (since no backend)
-  const order = {
-    order_id: 'ORDER_123456',
-    status_name: 'PENDING',
-    delivery_man_id: null,
-  };
+  const order = useOrderRealtime(orderId ?? '');
 
   const handleCancelOrder = async () => {
     alert('Order has been cancelled.');
@@ -27,6 +18,14 @@ export default function OrderStatus() {
   const handleNewOrder = () => {
     router.push('/');
   };
+
+  if (!order) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Loading order status...</p>
+      </main>
+    );
+  }
 
   const statusColor = order.delivery_man_id
     ? 'text-green-600'
@@ -60,7 +59,7 @@ export default function OrderStatus() {
           <p>
             <strong>Status:</strong>{' '}
             <span className={`font-semibold ${statusColor}`}>
-              {order.status_name}
+              {order.status}
             </span>
           </p>
           {!order.delivery_man_id && (
