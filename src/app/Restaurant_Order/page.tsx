@@ -1,38 +1,44 @@
-/* File: app/page.tsx (Next.js 15 App Router)
-   Description: Main order page component in React for a restaurant UI */
-
 'use client';
 
 import { useState } from 'react';
 import clsx from 'clsx';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const categories = [
   {
     name: 'Abo',
     items: [
-      { name: 'Beef Abo', price: 100 },
-      { name: 'Chicken Abo', price: 90 },
-    ],
-  },
-  {
-    name: 'Snack',
-    items: [
-      { name: 'Spring Roll', price: 60 },
-      { name: 'Fried Tofu', price: 50 },
-    ],
-  },
-  {
-    name: 'Fried rice',
-    items: [
-      { name: 'Seafood Fried Rice', price: 110 },
-      { name: 'Vegetable Fried Rice', price: 95 },
+      { name: 'BANH MI', price: 20000, description: 'Banh mi thit nguoi' },
+      { name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
     ],
   },
   {
     name: 'Milk Tea',
     items: [
-      { name: 'Classic Milk Tea', price: 40 },
-      { name: 'Matcha Milk Tea', price: 45 },
+      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+    ],
+  },
+  {
+    name: 'Snack',
+    items: [
+      { name: 'Spring Roll', price: 60000, description: 'Deep fried rolls' },
+      { name: 'Fried Tofu', price: 50000, description: 'Crispy tofu bites' },
+    ],
+  },
+  {
+    name: 'Fried rice',
+    items: [
+      {
+        name: 'Seafood Fried Rice',
+        price: 110000,
+        description: 'Rice with seafood',
+      },
+      {
+        name: 'Vegetable Fried Rice',
+        price: 95000,
+        description: 'Rice with vegetables',
+      },
     ],
   },
 ];
@@ -44,6 +50,7 @@ interface OrderItem {
   portion: string;
   customization: string;
   category: string;
+  description: string;
 }
 
 export default function Page() {
@@ -51,7 +58,7 @@ export default function Page() {
   const currentCategory = order.length > 0 ? order[0].category : null;
 
   const addToOrder = (
-    item: { name: string; price: number },
+    item: { name: string; price: number; description: string },
     category: string
   ) => {
     if (currentCategory && currentCategory !== category) return;
@@ -83,6 +90,7 @@ export default function Page() {
             portion,
             customization,
             category,
+            description: item.description,
           },
         ];
       }
@@ -108,6 +116,23 @@ export default function Page() {
 
   const getTotal = () => {
     return order.reduce((sum, item) => sum + item.price * item.qty, 0);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (order.length === 0) return;
+    const orderData = {
+      order_id: `ORDER_${Date.now()}`,
+      purchaser_id: 'HARDCODED_USER_ID',
+      delivery_man_id: '',
+      status: 'PENDING',
+      total_price: getTotal(),
+      created_at: new Date(),
+      items: order,
+    };
+
+    await addDoc(collection(db, 'orders'), orderData);
+    alert('Order placed successfully!');
+    setOrder([]);
   };
 
   return (
@@ -141,7 +166,9 @@ export default function Page() {
                 >
                   <span className="text-sm">
                     {item.name}{' '}
-                    <span className="text-gray-500">({item.price}k)</span>
+                    <span className="text-gray-500">
+                      ({item.price.toLocaleString()}đ)
+                    </span>
                   </span>
                   <button
                     onClick={() => addToOrder(item, cat.name)}
@@ -171,10 +198,11 @@ export default function Page() {
                         {item.name} ({item.portion})
                       </div>
                       <div className="text-sm italic text-gray-500">
-                        {item.customization}
+                        {item.customization || item.description}
                       </div>
                       <div className="text-sm">
-                        {item.price}k × {item.qty} = {item.price * item.qty}k
+                        {item.price.toLocaleString()}đ × {item.qty} ={' '}
+                        {(item.price * item.qty).toLocaleString()}đ
                       </div>
                     </div>
                     <div className="flex gap-1">
@@ -195,8 +223,14 @@ export default function Page() {
                 </div>
               ))}
               <div className="mt-2 text-right text-lg font-semibold">
-                Total: {getTotal()}k
+                Total: {getTotal().toLocaleString()}đ
               </div>
+              <button
+                onClick={handlePlaceOrder}
+                className="mt-4 w-full rounded bg-[#ff785b] py-2 font-semibold text-white hover:bg-[#ff5b3b]"
+              >
+                Place Order
+              </button>
             </div>
           )}
         </aside>

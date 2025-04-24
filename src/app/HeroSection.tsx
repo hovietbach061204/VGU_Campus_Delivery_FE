@@ -20,15 +20,12 @@ export default function HeroSection(): JSX.Element {
       {/* Right side content */}
       <div className="w-full text-center md:w-1/2 md:text-left">
         <h2 className="font-['Red_Rose-Bold',Helvetica] text-3xl font-bold leading-tight tracking-tight text-[#204944] sm:text-4xl md:text-5xl">
-          We have the Largest <br className="hidden sm:inline" />
+          We have the somewhat Modest <br className="hidden sm:inline" />
           Restaurant Chain
         </h2>
 
         <p className="mt-4 font-['Red_Hat_Text-Regular',Helvetica] text-base leading-relaxed text-[#777e90] sm:text-lg">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+          Something cool here
         </p>
 
         <div className="mt-6">

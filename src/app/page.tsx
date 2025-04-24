@@ -21,8 +21,7 @@ export default function Courier(): JSX.Element {
                 What our Clients Say
               </h2>
               <p className="text-base font-normal leading-relaxed text-[#777e90] sm:text-lg">
-                Duis aute irure dolor in reprehenderit in voluptate cillum
-                dolore eu fugiat nulla pariatur.
+                Something inspiring here
               </p>
             </div>
             <TestimonialsSection />
