@@ -10,13 +10,8 @@ export default function OrderStatus() {
 
   const order = useOrderRealtime(orderId ?? '');
 
-  const handleCancelOrder = async () => {
-    alert('Order has been cancelled.');
-    router.push('/');
-  };
-
   const handleNewOrder = () => {
-    router.push('/');
+    router.push('/Restaurant_Order');
   };
 
   if (!order) {
@@ -33,23 +28,10 @@ export default function OrderStatus() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-8 text-gray-800">
-      <div className="mx-auto max-w-xl rounded-lg border bg-white p-6 shadow-md">
-        <h1 className="mb-4 flex items-center gap-2 text-3xl font-bold text-[#ff785b]">
-          🧾 Order Confirmation
+      <div className="mx-auto max-w-xl rounded border bg-white p-6 shadow">
+        <h1 className="mb-6 flex items-center gap-2 text-3xl font-bold text-[#ff785b]">
+          🧾 Order Status
         </h1>
-
-        <div className="mb-4 text-base text-gray-600">
-          <p className="mb-2">
-            🎉{' '}
-            <span className="font-semibold">
-              Your order has been placed successfully!
-            </span>
-          </p>
-          <p className="text-sm">
-            We are currently processing your order and will notify you once a
-            driver is assigned.
-          </p>
-        </div>
 
         <div className="mb-4 text-base">
           <p>
@@ -69,22 +51,7 @@ export default function OrderStatus() {
           )}
         </div>
 
-        {order.delivery_man_id && (
-          <div className="mt-4">
-            <p className="text-base">
-              <strong>Assigned Driver:</strong>{' '}
-              <span className="text-gray-700">{order.delivery_man_id}</span>
-            </p>
-          </div>
-        )}
-
-        <div className="mt-6 flex gap-4">
-          <button
-            onClick={handleCancelOrder}
-            className="w-full rounded bg-red-500 py-2 font-semibold text-white shadow-sm hover:bg-red-600"
-          >
-            Cancel Order
-          </button>
+        <div className="mt-6 text-center">
           <button
             onClick={handleNewOrder}
             className="w-full rounded bg-[#ff785b] py-2 font-semibold text-white shadow-sm hover:bg-[#ff5b3b]"

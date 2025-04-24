@@ -131,14 +131,14 @@ export default function Page() {
       userId = auth.userId;
     } catch (err) {
       alert('You must be logged in to place an order');
-      console.log(err);
+      console.error(err);
       router.push('/SignIn');
       return;
     }
 
     try {
       const foodItems = order.map((item) => ({
-        name: item.name.toLowerCase().replace(/\s/g, '-'),
+        name: item.name,
         quantity: item.qty,
       }));
 
@@ -148,7 +148,7 @@ export default function Page() {
         foodItems,
       });
 
-      const responseData = await response.json(); // parse the response body
+      const responseData = await response.json();
       const orderId = responseData.result?.orderId;
 
       if (!orderId) {
@@ -157,7 +157,7 @@ export default function Page() {
 
       alert('Order placed successfully!');
       setOrder([]);
-      router.push(`/OrderStatus?orderId=${orderId}`); // ✅ Pass orderId to status page
+      router.push(`/OrderStatus?orderId=${orderId}`);
     } catch (err: any) {
       alert(`Error: ${err.message}`);
     }

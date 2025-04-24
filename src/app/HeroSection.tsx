@@ -25,12 +25,12 @@ export default function HeroSection(): JSX.Element {
         </h2>
 
         <p className="mt-4 font-['Red_Hat_Text-Regular',Helvetica] text-base leading-relaxed text-[#777e90] sm:text-lg">
-          Something cool here
+          If you want to deliver instead, we got you
         </p>
 
         <div className="mt-6">
           <Button className="rounded-[10px] bg-[#fdad00] px-6 py-4 font-['Red_Rose-Bold',Helvetica] text-base font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#e69d00] sm:text-lg md:text-xl">
-            Learn more
+            Start delivering
           </Button>
         </div>
       </div>

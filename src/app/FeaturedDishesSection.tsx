@@ -13,10 +13,8 @@ export default function FeaturedDishesSection(): JSX.Element {
             Delicious and healthy food for your body
           </h2>
           <p className="mt-6 font-['Red_Hat_Text-Regular',Helvetica] text-base leading-relaxed text-[#777e90] sm:text-lg">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            This is normally where we put a message to encourage people to buy
+            more food, but I do not have anything to put here
           </p>
         </div>
 
@@ -26,7 +24,7 @@ export default function FeaturedDishesSection(): JSX.Element {
             <CardContent className="p-0">
               <div className="relative aspect-[615/533] w-full">
                 <Image
-                  src="/images/featured-dish.png" // Update this to your actual image path
+                  src="/images/Motorblend.png" // Update this to your actual image path
                   alt="Delivery person on a scooter carrying food"
                   className="object-contain"
                   fill

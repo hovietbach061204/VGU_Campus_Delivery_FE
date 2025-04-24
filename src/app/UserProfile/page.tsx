@@ -3,6 +3,7 @@ import React, { JSX, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 
 export default function UserProfile(): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
@@ -12,6 +13,8 @@ export default function UserProfile(): JSX.Element {
     phone: '',
     address: '',
   });
+
+  const router = useRouter();
 
   const toggleEdit = () => {
     if (isEditing) {
@@ -24,6 +27,10 @@ export default function UserProfile(): JSX.Element {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleViewOrder = () => {
+    router.push('/OrderList');
   };
 
   return (
@@ -90,6 +97,15 @@ export default function UserProfile(): JSX.Element {
             </div>
           ))}
         </form>
+
+        <div className="mt-6 text-center">
+          <Button
+            onClick={handleViewOrder}
+            className="rounded-full bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
+          >
+            View Current Order
+          </Button>
+        </div>
       </div>
     </div>
   );

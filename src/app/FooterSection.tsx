@@ -56,8 +56,8 @@ export default function FooterSection(): JSX.Element {
           </div>
 
           <p className="mt-6 max-w-md font-['Red_Hat_Text-Medium',Helvetica] text-base font-medium leading-7 text-white sm:text-lg">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            And this here is to mention something about our group, but who
+            actually read this?
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
