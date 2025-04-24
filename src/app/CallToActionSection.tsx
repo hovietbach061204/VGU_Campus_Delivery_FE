@@ -1,15 +1,16 @@
 import React, { JSX } from 'react';
 import Image from 'next/image';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/input';
 
 export default function CallToActionSection(): JSX.Element {
   const stats = [
-    { value: '350+', label: 'Order per minute' },
+    { value: '35+', label: 'Order per minute' },
     { value: '10x', label: 'Faster delivery' },
-    { value: '10+', label: 'In Country' },
+    { value: '10+', label: 'In School' },
     { value: '99.9%', label: 'Order accuracy' },
   ];
 
@@ -29,9 +30,11 @@ export default function CallToActionSection(): JSX.Element {
                 placeholder="Enter location address"
                 defaultValue=""
               />
-              <Button className="h-[60px] rounded-[10px] bg-[#fa9f3d] px-8 text-lg font-bold text-white hover:bg-[#fa9f3d]/90 sm:h-[70px] sm:px-12 sm:text-xl">
-                Explore
-              </Button>
+              <Link href="/Restaurant_Order" passHref>
+                <Button className="h-[60px] rounded-[10px] bg-[#fa9f3d] px-8 text-lg font-bold text-white hover:bg-[#fa9f3d]/90 sm:h-[70px] sm:px-12 sm:text-xl">
+                  Explore
+                </Button>
+              </Link>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:gap-8">
@@ -56,7 +59,7 @@ export default function CallToActionSection(): JSX.Element {
             <Image
               className="h-auto w-full max-w-[300px] md:max-w-[400px] lg:max-w-[516px]"
               alt="Delivery person on motorbike"
-              src="/images/Motorbikeman.png" // <-- put your actual image path here
+              src="/images/Motorbikeman.png"
               width={516}
               height={516}
             />

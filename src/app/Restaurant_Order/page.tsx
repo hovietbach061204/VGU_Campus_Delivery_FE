@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 const categories = [
   {
@@ -56,6 +55,7 @@ interface OrderItem {
 export default function Page() {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const currentCategory = order.length > 0 ? order[0].category : null;
+  const router = useRouter();
 
   const addToOrder = (
     item: { name: string; price: number; description: string },
@@ -118,8 +118,9 @@ export default function Page() {
     return order.reduce((sum, item) => sum + item.price * item.qty, 0);
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = () => {
     if (order.length === 0) return;
+
     const orderData = {
       order_id: `ORDER_${Date.now()}`,
       purchaser_id: 'HARDCODED_USER_ID',
@@ -130,9 +131,8 @@ export default function Page() {
       items: order,
     };
 
-    await addDoc(collection(db, 'orders'), orderData);
-    alert('Order placed successfully!');
-    setOrder([]);
+    console.log('🧾 Order placed (mock):', orderData);
+    router.push('/OrderStatus');
   };
 
   return (
