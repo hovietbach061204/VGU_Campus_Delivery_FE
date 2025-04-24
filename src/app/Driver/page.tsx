@@ -33,23 +33,36 @@ const mockOrders = [
 ];
 
 export default function DriverOrderListener() {
-  const [orders, setOrders] = useState(mockOrders);
+  const [availableOrders, setAvailableOrders] = useState(mockOrders);
+  const [deliveringOrders, setDeliveringOrders] = useState<typeof mockOrders>(
+    []
+  );
   const [sortBy, setSortBy] = useState<'asc' | 'desc'>('asc');
 
-  const sortedOrders = [...orders].sort((a, b) =>
+  const sortedAvailable = [...availableOrders].sort((a, b) =>
     sortBy === 'asc'
       ? a.total_price - b.total_price
       : b.total_price - a.total_price
   );
 
   const handleAccept = (orderId: string) => {
-    alert(`Accepted order ${orderId}`);
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    const accepted = availableOrders.find((o) => o.id === orderId);
+    if (accepted) {
+      setDeliveringOrders((prev) => [...prev, accepted]);
+      setAvailableOrders((prev) => prev.filter((o) => o.id !== orderId));
+    }
   };
 
   const handlePass = (orderId: string) => {
-    alert(`Passed on order ${orderId}`);
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    setAvailableOrders((prev) => prev.filter((o) => o.id !== orderId));
+  };
+
+  const handleCancel = (orderId: string) => {
+    const canceled = deliveringOrders.find((o) => o.id === orderId);
+    if (canceled) {
+      setAvailableOrders((prev) => [...prev, canceled]);
+      setDeliveringOrders((prev) => prev.filter((o) => o.id !== orderId));
+    }
   };
 
   return (
@@ -57,7 +70,7 @@ export default function DriverOrderListener() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between border-b pb-3">
           <h1 className="flex items-center gap-2 text-2xl font-bold text-[#ff785b]">
-            <span>📦</span> Incoming Orders
+            <span>📦</span> Available Orders
           </h1>
           <select
             value={sortBy}
@@ -69,13 +82,13 @@ export default function DriverOrderListener() {
           </select>
         </div>
 
-        {sortedOrders.length === 0 ? (
+        {sortedAvailable.length === 0 ? (
           <p className="text-center text-sm text-gray-500">
-            No orders available at the moment.
+            No available orders.
           </p>
         ) : (
           <ul className="space-y-5">
-            {sortedOrders.map((order) => (
+            {sortedAvailable.map((order) => (
               <li
                 key={order.id}
                 className="rounded-xl border bg-white p-5 shadow"
@@ -132,6 +145,66 @@ export default function DriverOrderListener() {
               </li>
             ))}
           </ul>
+        )}
+
+        {deliveringOrders.length > 0 && (
+          <div className="mt-12 border-t pt-6">
+            <h2 className="mb-4 text-xl font-bold text-[#ff785b]">
+              🚚 Delivering
+            </h2>
+            <ul className="space-y-5">
+              {deliveringOrders.map((order) => (
+                <li
+                  key={order.id}
+                  className="rounded-xl border bg-white p-5 shadow"
+                >
+                  <div className="mb-2">
+                    <p className="font-semibold text-gray-700">
+                      Order ID: {order.order_id}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Customer ID: {order.purchaser_id}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Restaurant:{' '}
+                      <span className="font-semibold text-[#ff785b]">
+                        {order.restaurant_name}
+                      </span>
+                    </p>
+                    <p className="mb-2 text-sm text-gray-600">
+                      Total:{' '}
+                      <span className="font-semibold text-black">
+                        {order.total_price.toLocaleString()}đ
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="mb-3">
+                    <p className="mb-1 text-sm font-medium text-[#ff785b]">
+                      Items:
+                    </p>
+                    <ul className="list-disc pl-4 text-sm text-gray-700">
+                      {order.items.map((item, idx) => (
+                        <li key={idx}>
+                          {item.name} × {item.quantity} —{' '}
+                          {(item.price * item.quantity).toLocaleString()}đ
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      onClick={() => handleCancel(order.id)}
+                      className="w-full rounded bg-red-500 py-2 font-medium text-white shadow-sm hover:bg-red-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </main>

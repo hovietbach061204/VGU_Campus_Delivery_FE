@@ -25,7 +25,7 @@ export default function OrderStatus() {
   };
 
   const handleNewOrder = () => {
-    router.push('/');
+    router.push('/Restaurant_Order');
   };
 
   const statusColor = order.delivery_man_id
