@@ -7,13 +7,12 @@ import { doc, deleteDoc } from 'firebase/firestore';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function OrderStatus() {
   const router = useRouter();
 
-  // TEMP MOCK ORDERS (for multiple display)
-  const orders = [
+  const [orders, setOrders] = useState([
     {
       order_id: 'ORDER_123456',
       status_name: 'PENDING',
@@ -24,11 +23,10 @@ export default function OrderStatus() {
       status_name: 'DELIVERING',
       delivery_man_id: 'SHIPPER_77',
     },
-  ];
+  ]);
 
-  const handleCancelOrder = () => {
-    alert('Order has been cancelled.');
-    router.push('/');
+  const handleCancelOrder = (orderId: string) => {
+    setOrders((prev) => prev.filter((order) => order.order_id !== orderId));
   };
 
   const handleNewOrder = () => {
@@ -75,17 +73,19 @@ export default function OrderStatus() {
                   <span className="text-gray-700">{order.delivery_man_id}</span>
                 </p>
               )}
+              <div className="mt-4 text-right">
+                <button
+                  onClick={() => handleCancelOrder(order.order_id)}
+                  className="rounded bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600"
+                >
+                  Cancel Order
+                </button>
+              </div>
             </div>
           );
         })}
 
-        <div className="mt-6 flex gap-4">
-          <button
-            onClick={handleCancelOrder}
-            className="w-full rounded bg-red-500 py-2 font-semibold text-white shadow-sm hover:bg-red-600"
-          >
-            Cancel Order
-          </button>
+        <div className="mt-6 text-center">
           <button
             onClick={handleNewOrder}
             className="w-full rounded bg-[#ff785b] py-2 font-semibold text-white shadow-sm hover:bg-[#ff5b3b]"
