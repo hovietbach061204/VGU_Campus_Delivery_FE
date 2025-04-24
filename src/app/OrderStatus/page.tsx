@@ -7,19 +7,26 @@ import { doc, deleteDoc } from 'firebase/firestore';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 
 export default function OrderStatus() {
-  // const order = useOrderRealtime('jrttNvupbhUAtyGxfi34');
   const router = useRouter();
 
-  // TEMP MOCK ORDER (since no backend)
-  const order = {
-    order_id: 'ORDER_123456',
-    status_name: 'PENDING',
-    delivery_man_id: null,
-  };
+  // TEMP MOCK ORDERS (for multiple display)
+  const orders = [
+    {
+      order_id: 'ORDER_123456',
+      status_name: 'PENDING',
+      delivery_man_id: null,
+    },
+    {
+      order_id: 'ORDER_789012',
+      status_name: 'DELIVERING',
+      delivery_man_id: 'SHIPPER_77',
+    },
+  ];
 
-  const handleCancelOrder = async () => {
+  const handleCancelOrder = () => {
     alert('Order has been cancelled.');
     router.push('/');
   };
@@ -28,56 +35,49 @@ export default function OrderStatus() {
     router.push('/Restaurant_Order');
   };
 
-  const statusColor = order.delivery_man_id
-    ? 'text-green-600'
-    : 'text-yellow-500';
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-8 text-gray-800">
-      <div className="mx-auto max-w-xl rounded-lg border bg-white p-6 shadow-md">
-        <h1 className="mb-4 flex items-center gap-2 text-3xl font-bold text-[#ff785b]">
-          🧾 Order Confirmation
+      <div className="mx-auto max-w-xl">
+        <h1 className="mb-6 flex items-center gap-2 text-3xl font-bold text-[#ff785b]">
+          🧾 Your Orders
         </h1>
 
-        <div className="mb-4 text-base text-gray-600">
-          <p className="mb-2">
-            🎉{' '}
-            <span className="font-semibold">
-              Your order has been placed successfully!
-            </span>
-          </p>
-          <p className="text-sm">
-            We are currently processing your order and will notify you once a
-            driver is assigned.
-          </p>
-        </div>
+        {orders.map((order, idx) => {
+          const statusColor = order.delivery_man_id
+            ? 'text-green-600'
+            : 'text-yellow-500';
 
-        <div className="mb-4 text-base">
-          <p>
-            <strong>Order ID:</strong>{' '}
-            <span className="text-gray-700">{order.order_id}</span>
-          </p>
-          <p>
-            <strong>Status:</strong>{' '}
-            <span className={`font-semibold ${statusColor}`}>
-              {order.status_name}
-            </span>
-          </p>
-          {!order.delivery_man_id && (
-            <p className="mt-1 text-sm italic text-gray-500">
-              Waiting for a driver to accept your order...
-            </p>
-          )}
-        </div>
-
-        {order.delivery_man_id && (
-          <div className="mt-4">
-            <p className="text-base">
-              <strong>Assigned Driver:</strong>{' '}
-              <span className="text-gray-700">{order.delivery_man_id}</span>
-            </p>
-          </div>
-        )}
+          return (
+            <div
+              key={order.order_id}
+              className="mb-6 rounded-lg border bg-white p-5 shadow"
+            >
+              <h2 className="mb-2 text-lg font-semibold text-[#ff785b]">
+                Order #{idx + 1}
+              </h2>
+              <p>
+                <strong>Order ID:</strong>{' '}
+                <span className="text-gray-700">{order.order_id}</span>
+              </p>
+              <p>
+                <strong>Status:</strong>{' '}
+                <span className={`font-semibold ${statusColor}`}>
+                  {order.status_name}
+                </span>
+              </p>
+              {!order.delivery_man_id ? (
+                <p className="mt-1 text-sm italic text-gray-500">
+                  Waiting for a driver to accept your order...
+                </p>
+              ) : (
+                <p className="text-sm">
+                  <strong>Driver ID:</strong>{' '}
+                  <span className="text-gray-700">{order.delivery_man_id}</span>
+                </p>
+              )}
+            </div>
+          );
+        })}
 
         <div className="mt-6 flex gap-4">
           <button
