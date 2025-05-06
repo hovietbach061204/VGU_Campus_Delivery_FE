@@ -1,68 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import clsx from 'clsx';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-const categories = [
-  {
-    name: 'Abo',
-    items: [
-      { name: 'BANH MI', price: 20000, description: 'Banh mi thit nguoi' },
-      { name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
-    ],
-  },
-  {
-    name: 'Milk Tea',
-    items: [
-      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
-    ],
-  },
-  {
-    name: 'Snack',
-    items: [
-      { name: 'Spring Roll', price: 60000, description: 'Deep fried rolls' },
-      { name: 'Fried Tofu', price: 50000, description: 'Crispy tofu bites' },
-    ],
-  },
-  {
-    name: 'Fried rice',
-    items: [
-      {
-        name: 'Seafood Fried Rice',
-        price: 110000,
-        description: 'Rice with seafood',
-      },
-      {
-        name: 'Vegetable Fried Rice',
-        price: 95000,
-        description: 'Rice with vegetables',
-      },
-    ],
-  },
-];
+const RestaurantOrderPage = () => {
+  const [menu, setMenu] = useState<any[]>([]);
+  const [order, setOrder] = useState<any[]>([]);
+  const router = useRouter(); // Define the router to handle navigation
 
-interface OrderItem {
-  name: string;
-  qty: number;
-  price: number;
-  portion: string;
-  customization: string;
-  category: string;
-  description: string;
-}
+  useEffect(() => {
+    // Load menu from localStorage
+    const savedMenu = localStorage.getItem('menu');
+    if (savedMenu) {
+      setMenu(JSON.parse(savedMenu)); // Update menu state from localStorage
+    }
+  }, []);
 
-export default function Page() {
-  const [order, setOrder] = useState<OrderItem[]>([]);
-  const currentCategory = order.length > 0 ? order[0].category : null;
-  const router = useRouter();
-
-  const addToOrder = (
-    item: { name: string; price: number; description: string },
-    category: string
-  ) => {
-    if (currentCategory && currentCategory !== category) return;
-
+  const addToOrder = (item: any, category: string) => {
     const portion =
       prompt(
         `Choose portion size for ${item.name} (e.g., Small, Medium, Large):`,
@@ -101,26 +55,14 @@ export default function Page() {
     setOrder((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const decrementQty = (index: number) => {
-    setOrder((prev) => {
-      const item = prev[index];
-      if (item.qty > 1) {
-        return prev.map((i, idx) =>
-          idx === index ? { ...i, qty: i.qty - 1 } : i
-        );
-      } else {
-        return prev.filter((_, i) => i !== index);
-      }
-    });
-  };
-
   const getTotal = () => {
     return order.reduce((sum, item) => sum + item.price * item.qty, 0);
   };
 
   const handlePlaceOrder = () => {
-    if (order.length === 0) return;
+    if (order.length === 0) return; // Don't place order if there's nothing to order
 
+    // Construct orderData to store the order
     const orderData = {
       order_id: `ORDER_${Date.now()}`,
       purchaser_id: 'HARDCODED_USER_ID',
@@ -131,7 +73,10 @@ export default function Page() {
       items: order,
     };
 
+    // For now, log the order as a mock of placing the order
     console.log('🧾 Order placed (mock):', orderData);
+
+    // Navigate to OrderStatus after placing the order
     router.push('/OrderStatus');
   };
 
@@ -146,22 +91,14 @@ export default function Page() {
 
       <div className="mt-4 flex flex-col gap-4 md:flex-row">
         <section className="flex-1 space-y-6">
-          {categories.map((cat) => (
-            <div
-              key={cat.name}
-              className={clsx(
-                'border rounded p-4 transition-all duration-300',
-                currentCategory &&
-                  currentCategory !== cat.name &&
-                  'opacity-30 pointer-events-none'
-              )}
-            >
+          {menu.map((restaurant) => (
+            <div key={restaurant.id} className="rounded border p-4">
               <h3 className="mb-2 border-b pb-2 text-lg font-semibold text-[#ff785b]">
-                {cat.name}
+                {restaurant.name}
               </h3>
-              {cat.items.map((item) => (
+              {restaurant.dishes.map((item: any) => (
                 <div
-                  key={item.name}
+                  key={item.id}
                   className="mb-2 flex items-center justify-between"
                 >
                   <span className="text-sm">
@@ -171,8 +108,8 @@ export default function Page() {
                     </span>
                   </span>
                   <button
-                    onClick={() => addToOrder(item, cat.name)}
-                    className="flex size-7 items-center justify-center rounded-full bg-[#ff785b] text-white transition hover:bg-[#ff5b3b]"
+                    onClick={() => addToOrder(item, restaurant.name)}
+                    className="flex items-center justify-center rounded-full bg-[#ff785b] text-white transition hover:bg-[#ff5b3b]"
                   >
                     +
                   </button>
@@ -207,12 +144,6 @@ export default function Page() {
                     </div>
                     <div className="flex gap-1">
                       <button
-                        onClick={() => decrementQty(index)}
-                        className="rounded bg-gray-200 px-2 text-gray-700 hover:bg-gray-300"
-                      >
-                        -
-                      </button>
-                      <button
                         onClick={() => removeItem(index)}
                         className="rounded bg-red-400 px-2 text-white hover:bg-red-500"
                       >
@@ -237,4 +168,6 @@ export default function Page() {
       </div>
     </main>
   );
-}
+};
+
+export default RestaurantOrderPage;

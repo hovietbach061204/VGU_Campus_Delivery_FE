@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-import { loginUser } from '@/app/api/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -20,20 +18,15 @@ export default function SignIn() {
     setError('');
 
     try {
-      const { token } = await loginUser(username, password);
-
-      // Store token in localStorage (or cookies for SSR)
-      localStorage.setItem('token', token);
+      // Simulating login process (mock)
+      const isAdmin = username === 'admin'; // Simulate admin login
+      localStorage.setItem('isAdmin', String(isAdmin)); // Save role
 
       // Redirect after login
-      router.push('/'); // Adjust route as needed
+      router.push(isAdmin ? '/AdminProfile' : '/UserProfile');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Something went wrong');
-      }
-      // setError(err.message || 'Something went wrong');
+      setError('Something went wrong');
     } finally {
       setLoading(false);
     }

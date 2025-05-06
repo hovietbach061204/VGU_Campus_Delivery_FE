@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 
-export default function UserProfile() {
+export default function AdminProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: 'John Doe',
-    email: 'john@example.com',
+    email: 'admin@example.com',
     phone: '+123456789',
-    address: '123 Main St',
+    address: '123 Admin St',
   });
 
   const router = useRouter();
@@ -28,8 +28,12 @@ export default function UserProfile() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleViewOrder = () => {
+  const handleViewOrders = () => {
     router.push('/OrderStatus');
+  };
+
+  const handleEditMenu = () => {
+    router.push('/MenuEditing'); // Navigate to the restaurant menu editing page
   };
 
   return (
@@ -37,7 +41,7 @@ export default function UserProfile() {
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg sm:p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-[#ff785b] [font-family:'Red_Rose-Bold',Helvetica]">
-            Profile
+            Admin Profile
           </h2>
           <Button
             variant="outline"
@@ -48,7 +52,7 @@ export default function UserProfile() {
           </Button>
         </div>
 
-        {/* User Profile details and Editable Fields merged */}
+        {/* Admin Profile details and Editable Fields merged */}
         <form className="flex flex-col gap-6">
           {[
             { id: 'name', label: 'Full Name', type: 'text' },
@@ -77,13 +81,23 @@ export default function UserProfile() {
           ))}
         </form>
 
+        {/* Admin-specific Button: Edit Menu */}
+        <div className="mt-6 text-center">
+          <Button
+            onClick={handleEditMenu}
+            className="w-full rounded-[33px] bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
+          >
+            Edit Menu
+          </Button>
+        </div>
+
         {/* View Order Button */}
         <div className="mt-6 text-center">
           <Button
-            onClick={handleViewOrder}
-            className="w-full rounded-[33px] bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
+            onClick={handleViewOrders}
+            className="rounded-full bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
           >
-            View Current Order
+            View Current Orders
           </Button>
         </div>
       </div>

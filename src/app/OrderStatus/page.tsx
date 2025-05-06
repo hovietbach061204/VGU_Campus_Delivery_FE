@@ -1,8 +1,5 @@
 'use client';
 
-//import { useOrderRealtime } from '../../hooks/useOrderRealTime';
-//import { doc, deleteDoc } from 'firebase/firestore';
-//import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import Image from 'next/image';
@@ -131,14 +128,17 @@ export default function OrderStatus() {
                       </span>
                     </p>
                   )}
-                  <div className="mt-4 text-right">
-                    <button
-                      onClick={() => handleCancelOrder(order.order_id)}
-                      className="rounded bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600"
-                    >
-                      Cancel Order
-                    </button>
-                  </div>
+                  {order.status_name !== 'DELIVERING' &&
+                    order.status_name !== 'COMPLETED' && (
+                      <div className="mt-4 text-right">
+                        <button
+                          onClick={() => handleCancelOrder(order.order_id)}
+                          className="rounded bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600"
+                        >
+                          Cancel Order
+                        </button>
+                      </div>
+                    )}
                 </div>
               );
             })}
