@@ -1,39 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
-const mockMenu = [
-  {
-    id: 1,
-    name: 'Abo',
-    dishes: [
-      {
-        id: 1,
-        name: 'BANH MI',
-        price: 20000,
-        description: 'Vietnamese sandwich',
-      },
-      { id: 2, name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Milk Tea',
-    dishes: [
-      {
-        id: 1,
-        name: 'TRA SUA',
-        price: 25000,
-        description: 'Tra sua tran chau',
-      },
-    ],
-  },
-];
+interface Dish {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+}
+
+interface Restaurant {
+  id: number;
+  name: string;
+  address: string;
+  contactNumber: string;
+  dishes: Dish[];
+}
 
 export default function MenuEditing() {
-  const [menu, setMenu] = useState(mockMenu);
-  const [newRestaurant, setNewRestaurant] = useState('');
+  const [menu, setMenu] = useState<Restaurant[]>([]);
   const [newDish, setNewDish] = useState({
     name: '',
     price: 0,
@@ -41,24 +28,26 @@ export default function MenuEditing() {
     restaurantId: 0,
   });
 
-  // Add a new restaurant
-  const addRestaurant = () => {
-    if (newRestaurant) {
-      const newRestaurantObj = {
-        id: menu.length + 1,
-        name: newRestaurant,
-        dishes: [],
-      };
-      setMenu((prev) => [...prev, newRestaurantObj]);
-      setNewRestaurant('');
+  const router = useRouter();
+
+  // Fetch menu from localStorage
+  useEffect(() => {
+    const savedMenu = localStorage.getItem('menu');
+    if (savedMenu) {
+      setMenu(JSON.parse(savedMenu)); // Load menu from localStorage
     }
+  }, []);
+
+  // Navigate to AddRestaurant page
+  const handleAddRestaurant = () => {
+    router.push('/AddRestaurant');
   };
 
   // Add a new dish to a specific restaurant
   const addDish = () => {
     if (newDish.name && newDish.price && newDish.restaurantId) {
-      setMenu((prev) =>
-        prev.map((restaurant) => {
+      setMenu((prevMenu) =>
+        prevMenu.map((restaurant) => {
           if (restaurant.id === newDish.restaurantId) {
             return {
               ...restaurant,
@@ -75,10 +64,10 @@ export default function MenuEditing() {
     }
   };
 
-  // Remove a dish
+  // Remove a dish from a restaurant
   const removeDish = (restaurantId: number, dishId: number) => {
-    setMenu((prev) =>
-      prev.map((restaurant) =>
+    setMenu((prevMenu) =>
+      prevMenu.map((restaurant) =>
         restaurant.id === restaurantId
           ? {
               ...restaurant,
@@ -87,37 +76,36 @@ export default function MenuEditing() {
           : restaurant
       )
     );
+    // Update localStorage with the new menu
+    localStorage.setItem('menu', JSON.stringify(menu));
   };
 
-  // Remove a restaurant
+  // Remove a restaurant from the menu
   const removeRestaurant = (restaurantId: number) => {
-    setMenu((prev) =>
-      prev.filter((restaurant) => restaurant.id !== restaurantId)
+    setMenu((prevMenu) =>
+      prevMenu.filter((restaurant) => restaurant.id !== restaurantId)
     );
+    // Update localStorage with the new menu
+    localStorage.setItem('menu', JSON.stringify(menu));
   };
 
-  // Save changes to localStorage and update Restaurant_Order
+  // Save changes to localStorage
   const saveChanges = () => {
-    localStorage.setItem('menu', JSON.stringify(menu)); // Save menu in localStorage
+    localStorage.setItem('menu', JSON.stringify(menu)); // Save updated menu
     alert('Menu saved!');
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#f8f9fa] p-8">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-r from-[#ff785b] to-[#ffe5dc] p-8">
       <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-lg">
-        <h1 className="text-2xl font-semibold text-[#ff785b]">Manage Menu</h1>
+        <h1 className="mb-4 text-2xl font-semibold text-[#ff785b]">
+          Manage Menu
+        </h1>
 
-        {/* Add New Restaurant */}
+        {/* Button to add a new restaurant */}
         <div className="my-4">
-          <input
-            type="text"
-            value={newRestaurant}
-            onChange={(e) => setNewRestaurant(e.target.value)}
-            placeholder="Restaurant Name"
-            className="mb-2 w-full rounded border border-gray-300 p-2"
-          />
           <Button
-            onClick={addRestaurant}
+            onClick={handleAddRestaurant}
             className="w-full rounded-lg bg-[#ff785b] py-2 text-white"
           >
             Add Restaurant
@@ -126,6 +114,7 @@ export default function MenuEditing() {
 
         {/* Add New Dish */}
         <div className="my-4">
+          <h2 className="text-xl font-semibold text-[#ff785b]">Add New Dish</h2>
           <input
             type="text"
             value={newDish.name}
@@ -174,17 +163,21 @@ export default function MenuEditing() {
         {/* Display Current Menu */}
         <div>
           {menu.map((restaurant) => (
-            <div key={restaurant.id} className="mb-4">
+            <div key={restaurant.id} className="mb-6">
               <h2 className="text-xl font-semibold text-[#ff785b]">
                 {restaurant.name}
               </h2>
+              <p className="text-sm text-gray-500">{restaurant.address}</p>
+              <p className="text-sm text-gray-500">
+                {restaurant.contactNumber}
+              </p>
               <button
                 onClick={() => removeRestaurant(restaurant.id)}
                 className="text-red-600 hover:text-red-800"
               >
                 Remove Restaurant
               </button>
-              <ul className="space-y-2">
+              <ul className="mt-4 space-y-2">
                 {restaurant.dishes.map((dish) => (
                   <li
                     key={dish.id}
