@@ -10,35 +10,68 @@ const categories = [
   {
     name: 'ABO',
     items: [
+      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+      { name: 'PHO', price: 30000, description: 'Pho bo Ha Noi' },
+      {
+        name: 'SINH TO',
+        price: 20000,
+        description: 'Smoothie with mixed fruits',
+      },
       { name: 'BANH MI', price: 20000, description: 'Banh mi thit nguoi' },
       { name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
-    ],
-  },
-  {
-    name: 'Milk Tea',
-    items: [
-      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
-    ],
-  },
-  {
-    name: 'Snack',
-    items: [
-      { name: 'Spring Roll', price: 60000, description: 'Deep fried rolls' },
-      { name: 'Fried Tofu', price: 50000, description: 'Crispy tofu bites' },
-    ],
-  },
-  {
-    name: 'Fried rice',
-    items: [
       {
-        name: 'Seafood Fried Rice',
-        price: 110000,
-        description: 'Rice with seafood',
+        name: 'BUN CHA',
+        price: 35000,
+        description: 'Grilled pork with noodles',
       },
+    ],
+  },
+  {
+    name: 'CO NGOC',
+    items: [
       {
-        name: 'Vegetable Fried Rice',
-        price: 95000,
-        description: 'Rice with vegetables',
+        name: 'SINH TO',
+        price: 20000,
+        description: 'Smoothie with mixed fruits',
+      },
+      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+      {
+        name: 'RAU MA SUA DUA',
+        price: 18000,
+        description: 'Pennywort with coconut milk',
+      },
+    ],
+  },
+  {
+    name: 'LAM PHAT',
+    items: [
+      { name: 'XOI', price: 15000, description: 'Sticky rice' },
+      { name: 'COM GA', price: 35000, description: 'Chicken rice' },
+      { name: 'HU TIEU', price: 30000, description: 'Southern noodle soup' },
+      { name: 'PHO', price: 30000, description: 'Pho bo Ha Noi' },
+      { name: 'BANH CUON', price: 25000, description: 'Steamed rice rolls' },
+      {
+        name: 'BUN CHA',
+        price: 35000,
+        description: 'Grilled pork with noodles',
+      },
+    ],
+  },
+  {
+    name: 'MAI GIANG',
+    items: [
+      {
+        name: 'SINH TO',
+        price: 20000,
+        description: 'Smoothie with mixed fruits',
+      },
+      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+      { name: 'XOI', price: 15000, description: 'Sticky rice' },
+      { name: 'HU TIEU', price: 30000, description: 'Southern noodle soup' },
+      {
+        name: 'CAFE SUA',
+        price: 20000,
+        description: 'Vietnamese iced coffee with milk',
       },
     ],
   },
