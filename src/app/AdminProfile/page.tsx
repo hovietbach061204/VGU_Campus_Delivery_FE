@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ensureAuthenticated } from '@/lib/auth';
 import { getUserProfile, updateUserProfile } from '../api/user';
 
-export default function UserProfile() {
+export default function AdminProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -16,29 +16,28 @@ export default function UserProfile() {
     dob: '',
   });
 
+  const router = useRouter();
+
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const { token, userId } = ensureAuthenticated();
         const profile = await getUserProfile(userId, token);
-        console.log(profile);
 
         setFormData({
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
-          password: '', // don't show password, but allow update
+          password: '', // never prefill passwords
           dob: profile.dob || '',
         });
       } catch (err: any) {
-        console.error('Failed to load profile:', err);
+        console.error('Failed to load admin profile:', err);
         alert(err.message);
       }
     };
 
     loadProfile();
   }, []);
-
-  const router = useRouter();
 
   const toggleEdit = async () => {
     if (isEditing) {
@@ -48,12 +47,12 @@ export default function UserProfile() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           password: formData.password,
-          dob: formData.dob, // "YYYY-MM-DD"
+          dob: formData.dob,
         });
 
-        alert('Profile updated successfully!');
+        alert('Admin profile updated successfully!');
       } catch (err: any) {
-        console.error('Update failed:', err);
+        console.error('Failed to update admin profile:', err);
         alert(err.message);
         return;
       }
@@ -67,16 +66,15 @@ export default function UserProfile() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleViewOrder = () => {
-    router.push('/OrderList');
-  };
+  const handleViewOrders = () => router.push('/OrderStatus');
+  const handleEditMenu = () => router.push('/MenuEditing');
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#fff8f6] px-4 py-12">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg sm:p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-[#ff785b] [font-family:'Red_Rose-Bold',Helvetica]">
-            Profile
+            Admin Profile
           </h2>
           <Button
             variant="outline"
@@ -87,7 +85,6 @@ export default function UserProfile() {
           </Button>
         </div>
 
-        {/* User Profile details and Editable Fields merged */}
         <form className="flex flex-col gap-6">
           {[
             { id: 'firstName', label: 'First Name', type: 'text' },
@@ -109,20 +106,28 @@ export default function UserProfile() {
                 onChange={handleChange}
                 readOnly={!isEditing}
                 className={`h-[45px] w-full rounded-[30px] border px-5 text-sm 
-        ${isEditing ? 'border-[#ff785b]' : 'border-gray-300 bg-gray-100'} 
-        text-[#444] placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50`}
+                  ${isEditing ? 'border-[#ff785b]' : 'border-gray-300 bg-gray-100'} 
+                  text-[#444] placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50`}
               />
             </div>
           ))}
         </form>
 
-        {/* View Order Button */}
         <div className="mt-6 text-center">
           <Button
-            onClick={handleViewOrder}
+            onClick={handleEditMenu}
             className="w-full rounded-[33px] bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
           >
-            View Current Order
+            Edit Menu
+          </Button>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Button
+            onClick={handleViewOrders}
+            className="rounded-full bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
+          >
+            View Current Orders
           </Button>
         </div>
       </div>

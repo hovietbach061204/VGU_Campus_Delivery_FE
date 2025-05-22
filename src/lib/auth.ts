@@ -10,6 +10,8 @@ export function ensureAuthenticated(): { token: string; userId: string } {
   const token = getAccessToken();
   const userId = getUserId();
 
+  console.log('Hello', userId);
+
   if (!token || !userId) {
     throw new Error('User is not authenticated');
   }

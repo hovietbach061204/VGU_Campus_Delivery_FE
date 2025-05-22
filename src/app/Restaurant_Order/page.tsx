@@ -1,81 +1,81 @@
 'use client';
 
-import { useState } from 'react';
-import clsx from 'clsx';
+import { useEffect, useState } from 'react';
 import { createOrder } from '@/app/api/order';
 import { useRouter } from 'next/navigation';
 import { ensureAuthenticated } from '@/lib/auth';
+import { loadFormattedEateries } from '@/lib/utils';
 
-const categories = [
-  {
-    name: 'ABO',
-    items: [
-      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
-      { name: 'PHO', price: 30000, description: 'Pho bo Ha Noi' },
-      {
-        name: 'SINH TO',
-        price: 20000,
-        description: 'Smoothie with mixed fruits',
-      },
-      { name: 'BANH MI', price: 20000, description: 'Banh mi thit nguoi' },
-      { name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
-      {
-        name: 'BUN CHA',
-        price: 35000,
-        description: 'Grilled pork with noodles',
-      },
-    ],
-  },
-  {
-    name: 'CO NGOC',
-    items: [
-      {
-        name: 'SINH TO',
-        price: 20000,
-        description: 'Smoothie with mixed fruits',
-      },
-      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
-      {
-        name: 'RAU MA SUA DUA',
-        price: 18000,
-        description: 'Pennywort with coconut milk',
-      },
-    ],
-  },
-  {
-    name: 'LAM PHAT',
-    items: [
-      { name: 'XOI', price: 15000, description: 'Sticky rice' },
-      { name: 'COM GA', price: 35000, description: 'Chicken rice' },
-      { name: 'HU TIEU', price: 30000, description: 'Southern noodle soup' },
-      { name: 'PHO', price: 30000, description: 'Pho bo Ha Noi' },
-      { name: 'BANH CUON', price: 25000, description: 'Steamed rice rolls' },
-      {
-        name: 'BUN CHA',
-        price: 35000,
-        description: 'Grilled pork with noodles',
-      },
-    ],
-  },
-  {
-    name: 'MAI GIANG',
-    items: [
-      {
-        name: 'SINH TO',
-        price: 20000,
-        description: 'Smoothie with mixed fruits',
-      },
-      { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
-      { name: 'XOI', price: 15000, description: 'Sticky rice' },
-      { name: 'HU TIEU', price: 30000, description: 'Southern noodle soup' },
-      {
-        name: 'CAFE SUA',
-        price: 20000,
-        description: 'Vietnamese iced coffee with milk',
-      },
-    ],
-  },
-];
+// const categories = [
+//   {
+//     name: 'ABO',
+//     items: [
+//       { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+//       { name: 'PHO', price: 30000, description: 'Pho bo Ha Noi' },
+//       {
+//         name: 'SINH TO',
+//         price: 20000,
+//         description: 'Smoothie with mixed fruits',
+//       },
+//       { name: 'BANH MI', price: 20000, description: 'Banh mi thit nguoi' },
+//       { name: 'BUN CA', price: 30000, description: 'Bun ca Quy Nhon' },
+//       {
+//         name: 'BUN CHA',
+//         price: 35000,
+//         description: 'Grilled pork with noodles',
+//       },
+//     ],
+//   },
+//   {
+//     name: 'CO NGOC',
+//     items: [
+//       {
+//         name: 'SINH TO',
+//         price: 20000,
+//         description: 'Smoothie with mixed fruits',
+//       },
+//       { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+//       {
+//         name: 'RAU MA SUA DUA',
+//         price: 18000,
+//         description: 'Pennywort with coconut milk',
+//       },
+//     ],
+//   },
+//   {
+//     name: 'LAM PHAT',
+//     items: [
+//       { name: 'XOI', price: 15000, description: 'Sticky rice' },
+//       { name: 'COM GA', price: 35000, description: 'Chicken rice' },
+//       { name: 'HU TIEU', price: 30000, description: 'Southern noodle soup' },
+//       { name: 'PHO', price: 30000, description: 'Pho bo Ha Noi' },
+//       { name: 'BANH CUON', price: 25000, description: 'Steamed rice rolls' },
+//       {
+//         name: 'BUN CHA',
+//         price: 35000,
+//         description: 'Grilled pork with noodles',
+//       },
+//     ],
+//   },
+//   {
+//     name: 'MAI GIANG',
+//     items: [
+//       {
+//         name: 'SINH TO',
+//         price: 20000,
+//         description: 'Smoothie with mixed fruits',
+//       },
+//       { name: 'TRA SUA', price: 25000, description: 'Tra sua tran chau' },
+//       { name: 'XOI', price: 15000, description: 'Sticky rice' },
+//       { name: 'HU TIEU', price: 30000, description: 'Southern noodle soup' },
+//       {
+//         name: 'CAFE SUA',
+//         price: 20000,
+//         description: 'Vietnamese iced coffee with milk',
+//       },
+//     ],
+//   },
+// ];
 
 interface OrderItem {
   name: string;
@@ -87,10 +87,26 @@ interface OrderItem {
   description: string;
 }
 
-export default function Page() {
+export default function RestaurantOrderPage() {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const currentCategory = order.length > 0 ? order[0].category : null;
   const router = useRouter();
+  const [menu, setMenu] = useState<Restaurant[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const formatted = await loadFormattedEateries();
+        setMenu(formatted);
+      } catch (err: any) {
+        console.error('Failed to load eateries:', err);
+        alert(err.message || 'Failed to load menu');
+      }
+    };
+
+    loadData();
+  }, []);
+
   const addToOrder = (
     item: { name: string; price: number; description: string },
     category: string
@@ -102,6 +118,7 @@ export default function Page() {
         `Choose portion size for ${item.name} (e.g., Small, Medium, Large):`,
         'Medium'
       ) || 'Medium';
+
     const customization =
       prompt(`Any customizations for ${item.name}?`, '') || '';
 
@@ -133,19 +150,6 @@ export default function Page() {
 
   const removeItem = (index: number) => {
     setOrder((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const decrementQty = (index: number) => {
-    setOrder((prev) => {
-      const item = prev[index];
-      if (item.qty > 1) {
-        return prev.map((i, idx) =>
-          idx === index ? { ...i, qty: i.qty - 1 } : i
-        );
-      } else {
-        return prev.filter((_, i) => i !== index);
-      }
-    });
   };
 
   const getTotal = () => {
@@ -207,20 +211,12 @@ export default function Page() {
 
       <div className="mt-4 flex flex-col gap-4 md:flex-row">
         <section className="flex-1 space-y-6">
-          {categories.map((cat) => (
-            <div
-              key={cat.name}
-              className={clsx(
-                'border rounded p-4 transition-all duration-300',
-                currentCategory &&
-                  currentCategory !== cat.name &&
-                  'opacity-30 pointer-events-none'
-              )}
-            >
+          {menu.map((restaurant) => (
+            <div key={restaurant.name} className="rounded border p-4">
               <h3 className="mb-2 border-b pb-2 text-lg font-semibold text-[#ff785b]">
-                {cat.name}
+                {restaurant.name}
               </h3>
-              {cat.items.map((item) => (
+              {restaurant.dishes.map((item) => (
                 <div
                   key={item.name}
                   className="mb-2 flex items-center justify-between"
@@ -232,8 +228,8 @@ export default function Page() {
                     </span>
                   </span>
                   <button
-                    onClick={() => addToOrder(item, cat.name)}
-                    className="flex size-7 items-center justify-center rounded-full bg-[#ff785b] text-white transition hover:bg-[#ff5b3b]"
+                    onClick={() => addToOrder(item, restaurant.name)}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-[#ff785b] text-white hover:bg-[#ff5b3b]"
                   >
                     +
                   </button>
@@ -267,12 +263,6 @@ export default function Page() {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <button
-                        onClick={() => decrementQty(index)}
-                        className="rounded bg-gray-200 px-2 text-gray-700 hover:bg-gray-300"
-                      >
-                        -
-                      </button>
                       <button
                         onClick={() => removeItem(index)}
                         className="rounded bg-red-400 px-2 text-white hover:bg-red-500"

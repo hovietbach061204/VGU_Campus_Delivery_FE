@@ -51,17 +51,14 @@ export default function OrderStatus() {
           )}
         </div>
 
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center">
           <button
             onClick={handleNewOrder}
             className="w-full rounded bg-[#ff785b] py-2 font-semibold text-white shadow-sm hover:bg-[#ff5b3b]"
           >
             Place Another Order
           </button>
-        </div>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="mt-4 text-sm text-gray-500">
             📦 You will be updated on the order progress shortly.
           </p>
         </div>

@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-import { loginUser } from '@/app/api/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { loginUser } from '../api/auth';
 
 export default function SignIn() {
   const [username, setUserName] = useState('');
@@ -28,15 +27,15 @@ export default function SignIn() {
       localStorage.setItem('access_token', token); // use consistent key here!
       localStorage.setItem('user_id', userId);
 
+      // Simulating login process (mock)
+      const isAdmin = username === 'admin'; // Simulate admin login
+      localStorage.setItem('isAdmin', String(isAdmin)); // Save role
+
       // Redirect after login
-      router.push('/'); // Adjust route as needed
+      router.push(isAdmin ? '/AdminProfile' : '/UserProfile');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Something went wrong');
-      }
-      // setError(err.message || 'Something went wrong');
+      setError('Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -84,9 +83,12 @@ export default function SignIn() {
           <div className="flex size-9 items-center justify-center rounded-full bg-white text-[#3b5998] shadow-md">
             F
           </div>
-          <div className="flex size-9 items-center justify-center rounded-full bg-white text-[#dd4b39] shadow-md">
-            G
-          </div>
+          <a
+            href="http://localhost:8080/identity/oauth2/authorization/google"
+            className="flex h-[45px] w-full items-center justify-center rounded-[33px] bg-white text-[#dd4b39] font-semibold shadow-md transition hover:scale-[1.02]"
+          >
+            Continue with Google
+          </a>
         </div>
 
         <Link href="/Register" className="block">
