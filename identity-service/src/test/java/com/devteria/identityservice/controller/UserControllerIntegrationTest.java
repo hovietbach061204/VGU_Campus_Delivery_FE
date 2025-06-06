@@ -1,10 +1,7 @@
 package com.devteria.identityservice.controller;
 
-import com.devteria.identityservice.dto.request.UserCreationRequest;
-import com.devteria.identityservice.dto.response.UserResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +17,12 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.LocalDate;
+import com.devteria.identityservice.dto.request.UserCreationRequest;
+import com.devteria.identityservice.dto.response.UserResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest
@@ -31,7 +33,7 @@ class UserControllerIntegrationTest {
     static final MySQLContainer<?> MY_SQL_CONTAINER = new MySQLContainer<>("mysql:latest");
 
     @DynamicPropertySource
-    static void configureDatasource(DynamicPropertyRegistry registry){
+    static void configureDatasource(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", MY_SQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", MY_SQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", MY_SQL_CONTAINER::getPassword);
@@ -41,6 +43,7 @@ class UserControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     private UserCreationRequest request;
     private UserResponse userResponse;
     private LocalDate dob;
@@ -82,8 +85,7 @@ class UserControllerIntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value(1000))
                 .andExpect(MockMvcResultMatchers.jsonPath("result.username").value("john"))
                 .andExpect(MockMvcResultMatchers.jsonPath("result.firstName").value("John"))
-                .andExpect(MockMvcResultMatchers.jsonPath("result.lastName").value("Doe")
-                );
+                .andExpect(MockMvcResultMatchers.jsonPath("result.lastName").value("Doe"));
 
         log.info("Result: {}", response.andReturn().getResponse().getContentAsString());
     }

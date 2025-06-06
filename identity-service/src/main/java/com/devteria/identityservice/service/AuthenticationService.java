@@ -9,29 +9,29 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-import com.devteria.identityservice.constant.PredefinedRole;
-import com.devteria.identityservice.dto.request.ExchangeTokenRequest;
-import com.devteria.identityservice.entity.Role;
-import com.devteria.identityservice.repository.httpclient.OutboundIdentityClient;
-import com.devteria.identityservice.repository.httpclient.OutboundUserClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.devteria.identityservice.constant.PredefinedRole;
 import com.devteria.identityservice.dto.request.AuthenticationRequest;
+import com.devteria.identityservice.dto.request.ExchangeTokenRequest;
 import com.devteria.identityservice.dto.request.IntrospectRequest;
 import com.devteria.identityservice.dto.request.LogoutRequest;
 import com.devteria.identityservice.dto.request.RefreshRequest;
 import com.devteria.identityservice.dto.response.AuthenticationResponse;
 import com.devteria.identityservice.dto.response.IntrospectResponse;
 import com.devteria.identityservice.entity.InvalidatedToken;
+import com.devteria.identityservice.entity.Role;
 import com.devteria.identityservice.entity.User;
 import com.devteria.identityservice.exception.AppException;
 import com.devteria.identityservice.exception.ErrorCode;
 import com.devteria.identityservice.repository.InvalidatedTokenRepository;
 import com.devteria.identityservice.repository.UserRepository;
+import com.devteria.identityservice.repository.httpclient.OutboundIdentityClient;
+import com.devteria.identityservice.repository.httpclient.OutboundUserClient;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -94,13 +94,13 @@ public class AuthenticationService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
-    public AuthenticationResponse outboundAuthenticate(String code){
+    public AuthenticationResponse outboundAuthenticate(String code) {
         var response = outboundIdentityClient.exchangeToken(ExchangeTokenRequest.builder()
-                        .code(code)
-                        .clientId(CLIENT_ID)
-                        .clientSecret(CLIENT_SECRET)
-                        .redirectUri(REDIRECT_URI)
-                        .grantType(GRANT_TYPE)
+                .code(code)
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
+                .redirectUri(REDIRECT_URI)
+                .grantType(GRANT_TYPE)
                 .build());
 
         log.info("TOKEN RESPONSE {}", response);
@@ -114,20 +114,19 @@ public class AuthenticationService {
         roles.add(Role.builder().name(PredefinedRole.USER_ROLE).build());
 
         // Onboard user
-        var user = userRepository.findByUsername(userInfo.getEmail()).orElseGet(
-                () -> userRepository.save(User.builder()
-                                .username(userInfo.getEmail())
-                                .firstName(userInfo.getGivenName())
-                                .lastName(userInfo.getFamilyName())
-                                .roles(roles)
+        var user = userRepository
+                .findByUsername(userInfo.getEmail())
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .username(userInfo.getEmail())
+                        .firstName(userInfo.getGivenName())
+                        .lastName(userInfo.getFamilyName())
+                        .roles(roles)
                         .build()));
 
         // Generate token
         var token = generateToken(user);
 
-        return AuthenticationResponse.builder()
-                .token(token)
-                .build();
+        return AuthenticationResponse.builder().token(token).build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -153,10 +152,10 @@ public class AuthenticationService {
             Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
             InvalidatedToken invalidatedToken =
-                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+                    InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
             invalidatedTokenRepository.save(invalidatedToken);
-        } catch (AppException exception){
+        } catch (AppException exception) {
             log.info("Token already expired");
         }
     }
@@ -190,11 +189,9 @@ public class AuthenticationService {
                 .issuer("devteria.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
-                ))
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
-
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
 
@@ -215,8 +212,12 @@ public class AuthenticationService {
         SignedJWT signedJWT = SignedJWT.parse(token);
 
         Date expiryTime = (isRefresh)
-                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                    .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
+                ? new Date(signedJWT
+                        .getJWTClaimsSet()
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                        .toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify(verifier);
