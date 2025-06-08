@@ -8,6 +8,8 @@ export async function createOrder(
   token: string,
   payload: {
     purchaserId: string;
+    purchaserLon: number;
+    purchaserLat: number;
     eateryName: string;
     foodItems: FoodItemPayload[];
   }
@@ -35,10 +37,12 @@ export async function createOrder(
 export async function acceptOrder(
   orderId: string,
   driverId: string,
+  deliveryManLon: number,
+  deliveryManLat: number,
   token: string
 ): Promise<{ status: string }> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/accept?driverId=${driverId}`,
+    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/accept?driverId=${driverId}&deliveryManLon=${deliveryManLon}&deliveryManLat=${deliveryManLat}`,
     {
       method: 'POST',
       headers: {

@@ -9,9 +9,11 @@ import { ensureAuthenticated } from '@/lib/auth';
 type FirestoreOrder = {
   order_id: string;
   purchaser_id: string;
+  purchaser_lat: number;
+  purchaser_lon: number;
   delivery_man_id: string | null;
   status: string;
-  total_price: number;
+  total_price: string;
   eateryName: string;
   foodItems: ({ name: string; quantity?: number } | string)[];
 };
@@ -52,27 +54,50 @@ export default function DriverOrderListener() {
       return;
     }
 
-    try {
-      const result = await acceptOrder(orderId, driverId, token);
-      alert(result.status);
-
-      setOrders((prev) => {
-        const accepted = prev.find((o) => o.order_id === orderId);
-        if (!accepted) return prev;
-
-        setDeliveringOrders((prevDelivering) => {
-          const alreadyExists = prevDelivering.some(
-            (o) => o.order_id === accepted.order_id
-          );
-          if (alreadyExists) return prevDelivering;
-          return [...prevDelivering, accepted];
-        });
-
-        return prev.filter((o) => o.order_id !== orderId);
-      });
-    } catch (err: any) {
-      alert(`Failed to accept order: ${err.message}`);
+    // Get driver's current location
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const deliveryManLon = position.coords.longitude;
+        const deliveryManLat = position.coords.latitude;
+        try {
+          const result = await acceptOrder(
+            orderId,
+            driverId,
+            deliveryManLon,
+            deliveryManLat,
+            token
+          );
+          alert(result.status);
+
+          setOrders((prev) => {
+            const accepted = prev.find((o) => o.order_id === orderId);
+            if (!accepted) return prev;
+
+            setDeliveringOrders((prevDelivering) => {
+              const alreadyExists = prevDelivering.some(
+                (o) => o.order_id === accepted.order_id
+              );
+              if (alreadyExists) return prevDelivering;
+              return [...prevDelivering, accepted];
+            });
+
+            return prev.filter((o) => o.order_id !== orderId);
+          });
+        } catch (err: any) {
+          alert(`Failed to accept order: ${err.message}`);
+        }
+      },
+      () => {
+        alert(
+          'Unable to retrieve your location. Please allow location access and try again.'
+        );
+      }
+    );
   };
 
   const handlePass = (orderId: string) => {
@@ -106,8 +131,12 @@ export default function DriverOrderListener() {
             {orders
               .sort((a, b) =>
                 sortBy === 'asc'
-                  ? a.total_price - b.total_price
-                  : b.total_price - a.total_price
+                  ? a.total_price.localeCompare(b.total_price, undefined, {
+                      numeric: true,
+                    })
+                  : b.total_price.localeCompare(a.total_price, undefined, {
+                      numeric: true,
+                    })
               )
               .map((order) => (
                 <li

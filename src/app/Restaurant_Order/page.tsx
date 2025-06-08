@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createOrder } from '@/app/api/order';
+import { createOrder } from '../api/order';
 import { useRouter } from 'next/navigation';
 import { ensureAuthenticated } from '@/lib/auth';
 import { loadFormattedEateries } from '@/lib/utils';
@@ -173,31 +173,41 @@ export default function RestaurantOrderPage() {
       return;
     }
 
-    try {
-      const foodItems = order.map((item) => ({
-        name: item.name,
-        quantity: item.qty,
-      }));
-
-      const response = await createOrder(token, {
-        purchaserId: userId,
-        eateryName: order[0].category,
-        foodItems,
-      });
-
-      const responseData = await response.json();
-      const orderId = responseData.result?.orderId;
-
-      if (!orderId) {
-        throw new Error('Order ID not returned from server');
-      }
-
-      alert('Order placed successfully!');
-      setOrder([]);
-      router.push(`/OrderStatus?orderId=${orderId}`);
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const purchaserLon = position.coords.longitude;
+        const purchaserLat = position.coords.latitude;
+        try {
+          const foodItems = order.map((item) => ({
+            name: item.name,
+            quantity: item.qty,
+          }));
+
+          await createOrder(token, {
+            purchaserId: userId,
+            purchaserLon,
+            purchaserLat,
+            eateryName: order[0].category,
+            foodItems,
+          });
+
+          setOrder([]);
+          router.push(`/OrderStatus`);
+        } catch (err: any) {
+          alert(`Error: ${err.message}`);
+        }
+      },
+      () => {
+        alert(
+          'Unable to retrieve your location. Please allow location access and try again.'
+        );
+      }
+    );
   };
 
   return (
