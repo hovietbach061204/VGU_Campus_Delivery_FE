@@ -5,6 +5,16 @@ import { createOrder } from '../api/order';
 import { useRouter } from 'next/navigation';
 import { ensureAuthenticated } from '@/lib/auth';
 import { loadFormattedEateries } from '@/lib/utils';
+import { db } from '@/lib/firebase';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+} from 'firebase/firestore';
+import { useLiveLocation } from '@/hooks/useLiveLocation';
 
 // const categories = [
 //   {
@@ -92,6 +102,8 @@ export default function RestaurantOrderPage() {
   const currentCategory = order.length > 0 ? order[0].category : null;
   const router = useRouter();
   const [menu, setMenu] = useState<Restaurant[]>([]);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [trackingEnabled, setTrackingEnabled] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -196,8 +208,25 @@ export default function RestaurantOrderPage() {
             foodItems,
           });
 
-          setOrder([]);
-          router.push(`/OrderStatus`);
+          // Find the latest order for this user (assume just created)
+          const q = query(
+            collection(db, 'orders'),
+            where('purchaser_id', '==', userId),
+            orderBy('created_at', 'desc'),
+            limit(1)
+          );
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            const doc = snap.docs[0];
+            setOrderId(doc.id);
+            setTrackingEnabled(true);
+            setOrder([]);
+            router.push(`/OrderStatus?orderId=${doc.id}`);
+          } else {
+            alert('Order created but could not find order in Firestore.');
+            setOrder([]);
+            router.push(`/OrderStatus`);
+          }
         } catch (err: any) {
           alert(`Error: ${err.message}`);
         }
@@ -209,6 +238,9 @@ export default function RestaurantOrderPage() {
       }
     );
   };
+
+  // Enable live location tracking for purchaser after order is created
+  useLiveLocation(orderId ?? '', 'purchaser', trackingEnabled && !!orderId);
 
   return (
     <main className="min-h-screen bg-white p-4 text-gray-800">

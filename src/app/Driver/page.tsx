@@ -5,6 +5,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { acceptOrder } from '@/app/api/order';
 import { ensureAuthenticated } from '@/lib/auth';
+import { useLiveLocation } from '@/hooks/useLiveLocation';
 
 type FirestoreOrder = {
   order_id: string;
@@ -39,6 +40,15 @@ export default function DriverOrderListener() {
 
     return () => unsubscribe();
   }, []);
+
+  // Enable live location tracking for the first active delivery order (if any)
+  const activeDeliveryOrderId =
+    deliveringOrders.length > 0 ? deliveringOrders[0].order_id : null;
+  useLiveLocation(
+    activeDeliveryOrderId ?? '',
+    'deliveryman',
+    !!activeDeliveryOrderId
+  );
 
   const handleAccept = async (orderId: string) => {
     let token: string;
