@@ -9,6 +9,8 @@ type Order = {
   delivery_man_id: string | null;
   total_price?: string;
   created_at?: any;
+  eateryName?: string;
+  foodItems?: ({ name: string; quantity?: number } | string)[];
 };
 
 export function useOrderRealtime(orderId: string | number) {

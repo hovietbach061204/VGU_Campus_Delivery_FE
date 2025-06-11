@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrderRealtime } from '@/hooks/useOrderRealTime';
+import OrderChat from '@/components/OrderChat';
 
 export default function OrderStatus() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function OrderStatus() {
 
   if (!order) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="flex min-h-screen items-center justify-center">
         <p className="text-gray-500">Loading order status...</p>
       </main>
     );
@@ -50,6 +51,55 @@ export default function OrderStatus() {
             </p>
           )}
         </div>
+
+        {/* Chat Section - Enhanced with bigger size and center layout */}
+        {order.delivery_man_id && (
+          <div className="mt-8">
+            <div className="mb-4 text-center">
+              <h2 className="mb-2 text-xl font-bold text-[#ff785b]">
+                💬 Chat with Driver
+              </h2>
+              <p className="text-sm text-gray-600">
+                Real-time messaging with your delivery person
+              </p>
+            </div>
+            <div className="mb-4 flex justify-center">
+              <button
+                onClick={() =>
+                  window.open(
+                    `/Chat?orderId=${order.order_id}&role=purchaser`,
+                    '_blank'
+                  )
+                }
+                className="rounded bg-[#ff785b] px-6 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-[#ff5b3b]"
+              >
+                🔗 Open Full-Screen Chat
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-full max-w-4xl">
+                <OrderChat
+                  orderId={order.order_id}
+                  userId={order.purchaser_id}
+                  userRole="purchaser"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Show chat button even if no delivery person yet */}
+        {!order.delivery_man_id && (
+          <div className="mt-6 rounded-lg border border-orange-200 bg-orange-50 p-4 text-center">
+            <h3 className="mb-2 font-semibold text-gray-700">
+              📱 Chat Coming Soon
+            </h3>
+            <p className="text-sm text-gray-600">
+              You&apos;ll be able to chat with your driver once they accept your
+              order
+            </p>
+          </div>
+        )}
 
         <div className="mt-8 text-center">
           <button

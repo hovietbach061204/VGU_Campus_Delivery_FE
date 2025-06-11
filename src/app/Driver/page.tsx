@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { acceptOrder } from '@/app/api/order';
 import { ensureAuthenticated } from '@/lib/auth';
 import { useLiveLocation } from '@/hooks/useLiveLocation';
+import OrderChat from '@/components/OrderChat';
 
 type FirestoreOrder = {
   order_id: string;
@@ -245,6 +246,33 @@ export default function DriverOrderListener() {
                         <li key={idx}>{item.toString()}</li>
                       ))}
                     </ul>
+                  </div>
+
+                  {/* Enhanced Chat Section */}
+                  <div className="mt-4 space-y-3">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `/DeliveryStatus?orderId=${order.order_id}`,
+                            '_blank'
+                          )
+                        }
+                        className="w-full rounded bg-[#ff785b] py-3 font-semibold text-white shadow-sm transition-colors hover:bg-[#ff5b3b]"
+                      >
+                        💬 Chat with Customer - Full Screen
+                      </button>
+                    </div>
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+                      <p className="text-center text-sm text-gray-600">
+                        Quick chat preview below, or use full-screen chat above
+                      </p>
+                    </div>
+                    <OrderChat
+                      orderId={order.order_id}
+                      userId={order.delivery_man_id || ''}
+                      userRole="deliveryman"
+                    />
                   </div>
                 </li>
               ))}

@@ -1,5 +1,3 @@
-// hello
-// hi there, I am checking the git
 'use client';
 
 import { useEffect, useState } from 'react';
