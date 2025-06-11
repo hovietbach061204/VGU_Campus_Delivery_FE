@@ -80,3 +80,23 @@ export async function fetchPendingOrders(userId: string, token: string) {
   const data = await res.json();
   return data.result;
 }
+
+export async function cancelOrder(orderId: string, token: string) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/cancel`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to cancel order');
+  }
+
+  return res.json();
+}
