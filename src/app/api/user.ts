@@ -1,15 +1,19 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 export async function updateUserProfile(
   userId: string,
   token: string,
   payload: {
     firstName: string;
     lastName: string;
+    phoneNumber: string;
     password: string;
     dob: string; // ISO date string: "YYYY-MM-DD"
+    oldPassword?: string; // Add oldPassword for validation
     roles?: string[]; // Optional unless you're managing roles too
   }
 ) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/users/${userId}`,
     {
       method: 'PUT',
@@ -30,7 +34,7 @@ export async function updateUserProfile(
 }
 
 export async function getUserProfile(userId: string, token: string) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/users/${userId}`,
     {
       method: 'GET',

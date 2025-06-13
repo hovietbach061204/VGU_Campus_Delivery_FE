@@ -28,7 +28,8 @@ export async function registerUser(
   firstname: string,
   lastname: string,
   password: string,
-  dateOfBirth: string
+  dateOfBirth: string,
+  phoneNumber: string
 ) {
   try {
     const res = await fetch(
@@ -38,10 +39,11 @@ export async function registerUser(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username,
-          firstname,
-          lastname,
+          firstName: firstname, // changed key
+          lastName: lastname, // changed key
+          dob: dateOfBirth, // changed key
           password,
-          dateOfBirth,
+          phoneNumber,
         }),
       }
     );

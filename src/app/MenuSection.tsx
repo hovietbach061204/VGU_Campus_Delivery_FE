@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -67,6 +67,29 @@ export default function MenuSection() {
     },
   ];
 
+  const [isPrompted, setIsPrompted] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setIsPrompted(false);
+    window.addEventListener('clear-auth-prompt', handler);
+    return () => window.removeEventListener('clear-auth-prompt', handler);
+  }, []);
+
+  const handleSeeAllMenu = (e: React.MouseEvent) => {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('access_token')
+        : null;
+    if (!token) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.dispatchEvent(new CustomEvent('show-auth-prompt'));
+      setIsPrompted(true);
+      return;
+    }
+    // else, let the link work as normal
+  };
+
   return (
     <section className="w-full bg-[#29b0671a] px-4 py-16 sm:px-8 lg:rounded-bl-[250px] lg:px-16 xl:px-[170px]">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-12">
@@ -132,7 +155,10 @@ export default function MenuSection() {
         </div>
 
         <Link href="/Restaurant_Order">
-          <Button className="h-[52px] w-[180px] rounded-[10px] bg-[#fdad00] text-lg font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#fdad00]/90 sm:text-[22px]">
+          <Button
+            className="h-[52px] w-[180px] rounded-[10px] bg-[#fdad00] text-lg font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#fdad00]/90 sm:text-[22px]"
+            onClick={handleSeeAllMenu}
+          >
             See all menu
           </Button>
         </Link>

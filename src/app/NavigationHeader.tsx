@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,16 @@ export const NavigationHeader = (): React.JSX.Element => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const promptTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     const role = localStorage.getItem('userRole');
     setIsLoggedIn(!!token);
     setUserRole(role);
+    // No redirect here: just set state based on token presence
+    // This allows homepage to show correct buttons based on login state
 
     // Listen for new orders
     const handleNewOrder = () => {
@@ -48,6 +52,21 @@ export const NavigationHeader = (): React.JSX.Element => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleShowPrompt = () => {
+      setShowAuthPrompt(true);
+      if (promptTimeout.current) clearTimeout(promptTimeout.current);
+      promptTimeout.current = setTimeout(() => {
+        setShowAuthPrompt(false);
+      }, 6000);
+    };
+    window.addEventListener('show-auth-prompt', handleShowPrompt);
+    return () => {
+      window.removeEventListener('show-auth-prompt', handleShowPrompt);
+      if (promptTimeout.current) clearTimeout(promptTimeout.current);
+    };
+  }, []);
+
   const handleBellClick = () => {
     // Clear the notification count
     localStorage.setItem('newOrdersCount', '0');
@@ -62,7 +81,8 @@ export const NavigationHeader = (): React.JSX.Element => {
     localStorage.removeItem('userRole');
     setIsLoggedIn(false);
     setUserRole(null);
-    router.push('/SignIn');
+    // Redirect to homepage instead of SignIn
+    router.push('/');
   };
 
   const navItems = [
@@ -75,6 +95,11 @@ export const NavigationHeader = (): React.JSX.Element => {
 
   return (
     <header className="w-full rounded-b-xl bg-[#ff785b] p-4 shadow-md">
+      {showAuthPrompt && (
+        <div className="fixed left-0 top-0 z-50 w-full bg-yellow-200 py-4 text-center text-lg font-semibold text-[#b45309] shadow-md animate-pulse">
+          Please sign in or sign up first to use this feature!
+        </div>
+      )}
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold tracking-tight text-white">
@@ -131,14 +156,34 @@ export const NavigationHeader = (): React.JSX.Element => {
           )}
 
           {!isLoggedIn ? (
-            <Link href="/SignIn">
-              <Button
-                variant="outline"
-                className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
-              >
-                Sign in
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/SignIn">
+                <Button
+                  variant="outline"
+                  className={`rounded-full border-white bg-transparent text-white hover:bg-white/20 transition-all duration-300 ${
+                    showAuthPrompt
+                      ? 'ring-4 ring-yellow-400 scale-110 font-bold text-[#ff785b] bg-white'
+                      : ''
+                  }`}
+                  onClick={() => setShowAuthPrompt(false)}
+                >
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/Register">
+                <Button
+                  variant="outline"
+                  className={`rounded-full border-white bg-transparent text-white hover:bg-white/20 transition-all duration-300 ${
+                    showAuthPrompt
+                      ? 'ring-4 ring-yellow-400 scale-110 font-bold text-[#ff785b] bg-white'
+                      : ''
+                  }`}
+                  onClick={() => setShowAuthPrompt(false)}
+                >
+                  Sign up
+                </Button>
+              </Link>
+            </div>
           ) : (
             <>
               <DropdownMenu>
@@ -159,38 +204,26 @@ export const NavigationHeader = (): React.JSX.Element => {
                       👤 User Profile
                     </Link>
                   </DropdownMenuItem>
-
-                  {/* Purchaser-specific options */}
-                  {(!userRole || userRole === 'Purchaser') && (
-                    <>
-                      <DropdownMenuItem>
-                        <Link href="/OrderDashboard" className="block w-full">
-                          📋 My Orders
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Link href="/Restaurant_Order" className="block w-full">
-                          🍽️ Place Order
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-
-                  {/* Deliveryman-specific options */}
-                  {userRole === 'Deliveryman' && (
-                    <>
-                      <DropdownMenuItem>
-                        <Link href="/DriverProfile" className="block w-full">
-                          🚗 Driver Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Link href="/Driver" className="block w-full">
-                          🚚 Driver Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  <DropdownMenuItem>
+                    <Link href="/OrderDashboard" className="block w-full">
+                      📋 Ordering History
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/DeliveringProfile" className="block w-full">
+                      📦 Delivering History
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/Restaurant_Order" className="block w-full">
+                      🍽️ Place Order
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/Driver" className="block w-full">
+                      🚚 Delivering Orders
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 

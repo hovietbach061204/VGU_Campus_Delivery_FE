@@ -1,6 +1,6 @@
 'use client';
 
-import React, { JSX } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -8,9 +8,25 @@ import { Button } from '@/components/ui/button';
 
 export default function OrderingHeroSection(): JSX.Element {
   const router = useRouter();
+  const [isPrompted, setIsPrompted] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setIsPrompted(false);
+    window.addEventListener('clear-auth-prompt', handler);
+    return () => window.removeEventListener('clear-auth-prompt', handler);
+  }, []);
 
   const handleStartOrdering = () => {
-    // Redirect to restaurant order page for placing orders
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('access_token')
+        : null;
+    if (!token) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.dispatchEvent(new CustomEvent('show-auth-prompt'));
+      setIsPrompted(true);
+      return;
+    }
     router.push('/Restaurant_Order');
   };
 

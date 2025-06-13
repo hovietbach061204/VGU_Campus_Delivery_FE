@@ -15,6 +15,7 @@ import {
 type FirestoreOrder = {
   order_id: string;
   purchaser_id: string;
+  purchaser_name?: string; // Add optional purchaser_name
   purchaser_lat: number;
   purchaser_lon: number;
   delivery_man_id: string | null;
@@ -38,7 +39,7 @@ export default function DriverOrderListener() {
   useEffect(() => {
     const preloadLocation = async () => {
       try {
-        await attemptDriverLocationDetection(0);
+        await attemptDriverLocation(0);
         setLocationPreloaded(true);
         console.log('📍 Driver location preloaded successfully');
       } catch {
@@ -76,7 +77,7 @@ export default function DriverOrderListener() {
   );
 
   // Enhanced location detection for drivers with optimized retry logic
-  const attemptDriverLocationDetection = async (
+  const attemptDriverLocation = async (
     retryCount = 0
   ): Promise<{ lat: number; lon: number }> => {
     console.log(
@@ -173,7 +174,7 @@ export default function DriverOrderListener() {
     // Try location detection with retry logic
     for (let attempt = 0; attempt < MAX_LOCATION_RETRIES; attempt++) {
       try {
-        const location = await attemptDriverLocationDetection(attempt);
+        const location = await attemptDriverLocation(attempt);
 
         console.log('🚚 Driver location obtained, accepting order:', {
           lat: location.lat,
@@ -264,7 +265,6 @@ export default function DriverOrderListener() {
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 text-gray-800">
       {/* Home Icon Navigation */}
       <HomeIconNavigation />
-
       <div className="mx-auto max-w-2xl">
         {/* Location Status Indicator */}
         <div className="mb-4 rounded-lg border bg-white p-3 shadow-sm">
@@ -329,6 +329,14 @@ export default function DriverOrderListener() {
                     <p className="text-sm text-gray-600">
                       Customer ID: {order.purchaser_id}
                     </p>
+                    {order.purchaser_name ? (
+                      <p className="text-sm text-gray-600">
+                        Customer Name:{' '}
+                        <span className="font-semibold">
+                          {order.purchaser_name}
+                        </span>
+                      </p>
+                    ) : null}
                     <p className="text-sm text-gray-600">
                       Restaurant:{' '}
                       <span className="font-semibold text-[#ff785b]">
@@ -349,31 +357,35 @@ export default function DriverOrderListener() {
                     </p>
                     <ul className="list-disc pl-4 text-sm text-gray-700">
                       {(order.foodItems ?? []).map((item, idx) => {
-                        if (typeof item === 'string') {
-                          return (
-                            <li
-                              key={idx}
-                              className="flex items-center justify-between"
-                            >
-                              <span className="font-medium">{item}</span>
-                              <span className="ml-2 rounded-full bg-gray-400 px-2 py-0.5 text-xs text-white">
-                                x1
-                              </span>
-                            </li>
-                          );
-                        } else {
-                          return (
-                            <li
-                              key={idx}
-                              className="flex items-center justify-between"
-                            >
-                              <span className="font-medium">{item.name}</span>
-                              <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
-                                x{item.quantity || 1}
-                              </span>
-                            </li>
-                          );
-                        }
+                        const name =
+                          typeof item === 'string' ? item : item.name;
+                        const quantity =
+                          typeof item === 'string' ? 1 : item.quantity || 1;
+                        const description =
+                          typeof item === 'object' &&
+                          'description' in item &&
+                          typeof item.description === 'string'
+                            ? item.description
+                            : '';
+
+                        return (
+                          <li
+                            key={idx}
+                            className="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <div>
+                              <span className="font-medium">{name}</span>
+                              {description && (
+                                <span className="ml-2 text-xs italic text-gray-500">
+                                  {description}
+                                </span>
+                              )}
+                            </div>
+                            <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
+                              x{quantity}
+                            </span>
+                          </li>
+                        );
                       })}
                     </ul>
                   </div>
@@ -447,31 +459,35 @@ export default function DriverOrderListener() {
                     </p>
                     <ul className="list-disc pl-4 text-sm text-gray-700">
                       {(order.foodItems ?? []).map((item, idx) => {
-                        if (typeof item === 'string') {
-                          return (
-                            <li
-                              key={idx}
-                              className="flex items-center justify-between"
-                            >
-                              <span className="font-medium">{item}</span>
-                              <span className="ml-2 rounded-full bg-gray-400 px-2 py-0.5 text-xs text-white">
-                                x1
-                              </span>
-                            </li>
-                          );
-                        } else {
-                          return (
-                            <li
-                              key={idx}
-                              className="flex items-center justify-between"
-                            >
-                              <span className="font-medium">{item.name}</span>
-                              <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
-                                x{item.quantity || 1}
-                              </span>
-                            </li>
-                          );
-                        }
+                        const name =
+                          typeof item === 'string' ? item : item.name;
+                        const quantity =
+                          typeof item === 'string' ? 1 : item.quantity || 1;
+                        const description =
+                          typeof item === 'object' &&
+                          'description' in item &&
+                          typeof item.description === 'string'
+                            ? item.description
+                            : '';
+
+                        return (
+                          <li
+                            key={idx}
+                            className="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <div>
+                              <span className="font-medium">{name}</span>
+                              {description && (
+                                <span className="ml-2 text-xs italic text-gray-500">
+                                  {description}
+                                </span>
+                              )}
+                            </div>
+                            <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
+                              x{quantity}
+                            </span>
+                          </li>
+                        );
                       })}
                     </ul>
                   </div>

@@ -8,6 +8,7 @@ interface ItemCustomizationModalProps {
   onClose: () => void;
   onConfirm: (portion: string, customization: string, quantity: number) => void;
   itemName: string;
+  itemDescription?: string; // Add optional description prop
 }
 
 const PORTION_SIZES = [
@@ -21,6 +22,7 @@ export default function ItemCustomizationModal({
   onClose,
   onConfirm,
   itemName,
+  itemDescription, // Accept description
 }: ItemCustomizationModalProps) {
   const [selectedPortion, setSelectedPortion] = useState('Medium');
   const [customization, setCustomization] = useState('');
@@ -72,10 +74,13 @@ export default function ItemCustomizationModal({
         <h3 className="mb-4 text-lg font-semibold text-gray-800">
           Customize Your Order
         </h3>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-1 text-sm text-gray-600">
           Customizing:{' '}
           <span className="font-medium text-[#ff785b]">{itemName}</span>
         </p>
+        {itemDescription && (
+          <p className="mb-4 text-xs text-gray-500 italic">{itemDescription}</p>
+        )}
 
         {/* Portion Size Selection */}
         <div className="mb-4">

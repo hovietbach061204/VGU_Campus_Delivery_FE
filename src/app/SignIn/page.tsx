@@ -11,7 +11,23 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successPrompt, setSuccessPrompt] = useState('');
   const router = useRouter();
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const success = params.get('success');
+      if (success) {
+        setSuccessPrompt(success);
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +63,14 @@ export default function SignIn() {
         <h1 className="text-center text-3xl font-semibold text-[#ff785b] sm:text-4xl">
           VGU Delivery
         </h1>
+        {successPrompt && (
+          <div
+            className="mb-4 rounded bg-green-100 px-4 py-2 text-sm text-green-700 font-semibold animate-pulse animate-shake"
+            style={{ animationDuration: '0.5s' }}
+          >
+            {successPrompt}
+          </div>
+        )}
 
         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
           <Input

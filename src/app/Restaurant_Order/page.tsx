@@ -227,16 +227,26 @@ export default function RestaurantOrderPage() {
       const foodItems = order.map((item) => ({
         name: item.name,
         quantity: item.qty,
+        description:
+          item.customization !== undefined &&
+          item.customization !== null &&
+          item.customization !== ''
+            ? item.customization
+            : '',
+        size: item.portion ? item.portion.toUpperCase() : undefined,
       }));
 
       const total = getTotal();
 
       await createOrder(token, {
-        purchaserId: userId,
-        purchaserLon: lon,
-        purchaserLat: lat,
+        voucherCode: [], // or provide a voucher if available
         eateryName: order[0].category,
         foodItems,
+        purchaser: {
+          purchaserId: userId,
+          purchaserLat: lat,
+          purchaserLon: lon,
+        },
       });
 
       // Find the latest order for this user
@@ -686,6 +696,7 @@ export default function RestaurantOrderPage() {
         }}
         onConfirm={handleCustomizationConfirm}
         itemName={selectedItem?.item.name || ''}
+        itemDescription={selectedItem?.item.description || ''}
       />
     </main>
   );

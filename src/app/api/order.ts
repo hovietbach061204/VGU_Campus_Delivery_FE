@@ -1,20 +1,31 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 // app/api/order.ts
+// Update the payload type to match the new backend API
 export interface FoodItemPayload {
   name: string;
   quantity: number;
+  description?: string;
+}
+
+export interface PurchaserPayload {
+  purchaserId: string;
+  purchaserLat: number;
+  purchaserLon: number;
+}
+
+export interface CreateOrderPayload {
+  voucherCode: string[];
+  eateryName: string;
+  foodItems: FoodItemPayload[];
+  purchaser: PurchaserPayload;
 }
 
 export async function createOrder(
   token: string,
-  payload: {
-    purchaserId: string;
-    purchaserLon: number;
-    purchaserLat: number;
-    eateryName: string;
-    foodItems: FoodItemPayload[];
-  }
+  payload: CreateOrderPayload
 ): Promise<Response> {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders`,
     {
       method: 'POST',
@@ -41,7 +52,7 @@ export async function acceptOrder(
   deliveryManLat: number,
   token: string
 ): Promise<{ status: string }> {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/accept?driverId=${driverId}&deliveryManLon=${deliveryManLon}&deliveryManLat=${deliveryManLat}`,
     {
       method: 'POST',
@@ -63,7 +74,7 @@ export async function acceptOrder(
 // app/api/order.ts
 
 export async function fetchPendingOrders(userId: string, token: string) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/pending/${userId}`,
     {
       headers: {
@@ -82,7 +93,7 @@ export async function fetchPendingOrders(userId: string, token: string) {
 }
 
 export async function cancelOrder(orderId: string, token: string) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/cancel`,
     {
       method: 'DELETE',

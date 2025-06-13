@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/input';
+import { ExploreButton } from './ExploreButton';
 
 export default function CallToActionSection(): JSX.Element {
   const stats = [
@@ -30,11 +31,8 @@ export default function CallToActionSection(): JSX.Element {
                 placeholder="Enter location address"
                 defaultValue=""
               />
-              <Link href="/Restaurant_Order" passHref>
-                <Button className="h-[60px] rounded-[10px] bg-[#fa9f3d] px-8 text-lg font-bold text-white hover:bg-[#fa9f3d]/90 sm:h-[70px] sm:px-12 sm:text-xl">
-                  Explore
-                </Button>
-              </Link>
+              {/* Use a wrapper for client-side logic to avoid passing onClick directly to a server component */}
+              <ExploreButton />
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:gap-8">

@@ -1,3 +1,5 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 export interface FoodItem {
   name: string;
   price: number;
@@ -12,7 +14,7 @@ export interface EateryPayload {
 }
 
 export async function createEatery(token: string, payload: EateryPayload) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/eateries`,
     {
       method: 'POST',
@@ -37,7 +39,7 @@ export async function addFoodItemToEatery(
   eateryName: string,
   dish: { name: string; price: number; description: string }
 ) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/eateries/food-items/${encodeURIComponent(eateryName)}`,
     {
       method: 'PUT',
@@ -58,7 +60,7 @@ export async function addFoodItemToEatery(
 }
 
 export async function deleteEatery(token: string, eateryName: string) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/eateries/${encodeURIComponent(eateryName)}`,
     {
       method: 'DELETE',
@@ -79,7 +81,7 @@ export async function deleteDishFromEatery(
   eateryName: string,
   foodName: string
 ) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/eateries/${encodeURIComponent(
       eateryName
     )}/${encodeURIComponent(foodName)}`,
@@ -98,7 +100,7 @@ export async function deleteDishFromEatery(
 }
 
 export async function fetchAllEateries(token: string) {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/eateries`,
     {
       method: 'GET',
