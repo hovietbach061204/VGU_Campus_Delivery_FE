@@ -32,7 +32,7 @@ export default function SignIn() {
       localStorage.setItem('isAdmin', String(isAdmin)); // Save role
 
       // Redirect after login
-      router.push(isAdmin ? '/AdminProfile' : '/UserProfile');
+      router.push(isAdmin ? '/AdminProfile' : '/');
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError('Something went wrong');
@@ -85,7 +85,7 @@ export default function SignIn() {
           </div>
           <a
             href="http://localhost:8080/identity/oauth2/authorization/google"
-            className="flex h-[45px] w-full items-center justify-center rounded-[33px] bg-white text-[#dd4b39] font-semibold shadow-md transition hover:scale-[1.02]"
+            className="flex h-[45px] w-full items-center justify-center rounded-[33px] bg-white font-semibold text-[#dd4b39] shadow-md transition hover:scale-[1.02]"
           >
             Continue with Google
           </a>

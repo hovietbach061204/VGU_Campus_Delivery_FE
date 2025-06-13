@@ -21,10 +21,13 @@ export const NavigationHeader = (): React.JSX.Element => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
+    const role = localStorage.getItem('userRole');
     setIsLoggedIn(!!token);
+    setUserRole(role);
 
     // Listen for new orders
     const handleNewOrder = () => {
@@ -56,7 +59,9 @@ export const NavigationHeader = (): React.JSX.Element => {
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('userRole');
     setIsLoggedIn(false);
+    setUserRole(null);
     router.push('/SignIn');
   };
 
@@ -151,29 +156,41 @@ export const NavigationHeader = (): React.JSX.Element => {
                 >
                   <DropdownMenuItem>
                     <Link href="/UserProfile" className="block w-full">
-                      User Profile
+                      👤 User Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/OrderDashboard" className="block w-full">
-                      📋 My Orders
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/Restaurant_Order" className="block w-full">
-                      🍽️ Place Order
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/DriverProfile" className="block w-full">
-                      Driver Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/Driver" className="block w-full">
-                      🚗 Driver Dashboard
-                    </Link>
-                  </DropdownMenuItem>
+
+                  {/* Purchaser-specific options */}
+                  {(!userRole || userRole === 'Purchaser') && (
+                    <>
+                      <DropdownMenuItem>
+                        <Link href="/OrderDashboard" className="block w-full">
+                          📋 My Orders
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/Restaurant_Order" className="block w-full">
+                          🍽️ Place Order
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  {/* Deliveryman-specific options */}
+                  {userRole === 'Deliveryman' && (
+                    <>
+                      <DropdownMenuItem>
+                        <Link href="/DriverProfile" className="block w-full">
+                          🚗 Driver Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/Driver" className="block w-full">
+                          🚚 Driver Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 

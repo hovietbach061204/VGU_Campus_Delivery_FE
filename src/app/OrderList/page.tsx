@@ -48,7 +48,7 @@ export default function OrderList() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="flex min-h-screen items-center justify-center">
         <p className="text-gray-500">Loading pending orders...</p>
       </main>
     );
@@ -57,7 +57,7 @@ export default function OrderList() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-8 text-gray-800">
       <div className="mx-auto max-w-xl space-y-6">
-        <h1 className="text-3xl font-bold text-[#ff785b] mb-4">
+        <h1 className="mb-4 text-3xl font-bold text-[#ff785b]">
           🧾 Your Pending Orders
         </h1>
 
@@ -68,7 +68,7 @@ export default function OrderList() {
             return (
               <div
                 key={order.orderId}
-                className="rounded border bg-white p-6 shadow-sm space-y-2"
+                className="space-y-2 rounded border bg-white p-6 shadow-sm"
               >
                 <p>
                   <strong>Order ID:</strong>{' '}

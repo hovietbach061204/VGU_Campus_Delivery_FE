@@ -7,6 +7,7 @@ import FooterSection from './FooterSection';
 import HeroSection from './HeroSection';
 import MenuSection from './MenuSection';
 import { NavigationHeader } from './NavigationHeader';
+import OrderingHeroSection from './OrderingHeroSection';
 
 export default function Courier(): JSX.Element {
   return (
@@ -33,6 +34,11 @@ export default function Courier(): JSX.Element {
           {/* Hero section */}
           <section className="pt-12" id="hero">
             <HeroSection />
+          </section>
+
+          {/* Ordering-focused Hero section */}
+          <section className="pt-12" id="ordering-hero">
+            <OrderingHeroSection />
           </section>
 
           {/* Menu section */}

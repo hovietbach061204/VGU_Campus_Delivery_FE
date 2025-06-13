@@ -63,6 +63,8 @@
     "@commitlint/config-conventional": "^19.6.0",
     "@inlang/paraglide-js": "1.11.8",
     "@playwright/test": "^1.49.1",
+    "@stagewise-plugins/react": "^0.4.7",
+    "@stagewise/toolbar-next": "^0.4.7",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/jest": "^29.5.14",

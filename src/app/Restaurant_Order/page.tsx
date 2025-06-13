@@ -16,6 +16,8 @@ import {
 } from 'firebase/firestore';
 import { useLiveLocation } from '@/hooks/useLiveLocation';
 import OrderSuccessModal from '@/components/OrderSuccessModal';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
+import ItemCustomizationModal from '@/components/ItemCustomizationModal';
 import {
   diagnoseLocationAccess,
   getLocationErrorMessage,
@@ -94,12 +96,20 @@ export default function RestaurantOrderPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [orderTotal, setOrderTotal] = useState(0);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [quantityInputs, setQuantityInputs] = useState<{
+    [key: string]: string;
+  }>({});
   const [selectedLocation, setSelectedLocation] = useState<{
     name: string;
     lat: number;
     lon: number;
     description: string;
     source: 'fixed' | 'auto' | 'manual';
+  } | null>(null);
+  const [showCustomizationModal, setShowCustomizationModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    item: { name: string; price: number; description: string };
+    category: string;
   } | null>(null);
   const MAX_LOCATION_RETRIES = 3;
 
@@ -119,43 +129,84 @@ export default function RestaurantOrderPage() {
 
   const addToOrder = (
     item: { name: string; price: number; description: string },
-    category: string
+    category: string,
+    customQuantity?: number,
+    customPortion?: string,
+    customCustomization?: string
   ) => {
     if (currentCategory && currentCategory !== category) return;
 
-    const portion =
-      prompt(
-        `Choose portion size for ${item.name} (e.g., Small, Medium, Large):`,
-        'Medium'
-      ) || 'Medium';
+    // If custom values are provided, use them; otherwise open modal
+    if (customPortion && customCustomization !== undefined && customQuantity) {
+      const portion = customPortion;
+      const customization = customCustomization;
+      const quantity = customQuantity;
 
-    const customization =
-      prompt(`Any customizations for ${item.name}?`, '') || '';
+      setOrder((prev) => {
+        const existing = prev.find(
+          (i) =>
+            i.name === item.name &&
+            i.portion === portion &&
+            i.customization === customization
+        );
+        if (existing) {
+          return prev.map((i) =>
+            i === existing ? { ...i, qty: i.qty + quantity } : i
+          );
+        } else {
+          return [
+            ...prev,
+            {
+              name: item.name,
+              qty: quantity,
+              price: item.price,
+              portion,
+              customization,
+              category,
+              description: item.description,
+            },
+          ];
+        }
+      });
+    } else {
+      // Open customization modal
+      setSelectedItem({ item, category });
+      setShowCustomizationModal(true);
+    }
+  };
 
-    setOrder((prev) => {
-      const existing = prev.find(
-        (i) =>
-          i.name === item.name &&
-          i.portion === portion &&
-          i.customization === customization
+  const handleCustomizationConfirm = (
+    portion: string,
+    customization: string,
+    quantity: number
+  ) => {
+    if (selectedItem) {
+      addToOrder(
+        selectedItem.item,
+        selectedItem.category,
+        quantity,
+        portion,
+        customization
       );
-      if (existing) {
-        return prev.map((i) => (i === existing ? { ...i, qty: i.qty + 1 } : i));
-      } else {
-        return [
-          ...prev,
-          {
-            name: item.name,
-            qty: 1,
-            price: item.price,
-            portion,
-            customization,
-            category,
-            description: item.description,
-          },
-        ];
-      }
-    });
+      setSelectedItem(null);
+    }
+  };
+
+  const addCustomQuantity = (
+    item: { name: string; price: number; description: string },
+    category: string
+  ) => {
+    const itemKey = `${category}-${item.name}`;
+    const quantity = parseInt(quantityInputs[itemKey] || '1');
+
+    if (isNaN(quantity) || quantity < 1) {
+      alert('Please enter a valid quantity (positive integer)');
+      return;
+    }
+
+    addToOrder(item, category, quantity);
+    // Reset the input
+    setQuantityInputs((prev) => ({ ...prev, [itemKey]: '' }));
   };
 
   const removeItem = (index: number) => {
@@ -392,6 +443,9 @@ export default function RestaurantOrderPage() {
 
   return (
     <main className="min-h-screen bg-white p-4 text-gray-800">
+      {/* Home Icon Navigation */}
+      <HomeIconNavigation />
+
       <header className="rounded bg-[#ff785b] p-4 text-xl font-bold text-white shadow">
         Choose Your Food
       </header>
@@ -473,7 +527,7 @@ export default function RestaurantOrderPage() {
                 key={restaurant.name}
                 className={`rounded border p-4 transition-all duration-200 ${
                   isRestaurantDisabled
-                    ? 'bg-gray-100 opacity-60 pointer-events-none'
+                    ? 'pointer-events-none bg-gray-100 opacity-60'
                     : 'bg-white'
                 }`}
               >
@@ -489,34 +543,53 @@ export default function RestaurantOrderPage() {
                     </span>
                   )}
                 </h3>
-                {restaurant.dishes.map((item) => (
-                  <div
-                    key={item.name}
-                    className="mb-2 flex items-center justify-between"
-                  >
-                    <span
-                      className={`text-sm ${
-                        isRestaurantDisabled ? 'text-gray-400' : 'text-gray-800'
-                      }`}
+                {restaurant.dishes.map((item) => {
+                  return (
+                    <div
+                      key={item.name}
+                      className="mb-2 flex items-center justify-between"
                     >
-                      {item.name}{' '}
-                      <span className="text-gray-500">
-                        ({item.price.toLocaleString()}đ)
+                      <span
+                        className={`text-sm ${
+                          isRestaurantDisabled
+                            ? 'text-gray-400'
+                            : 'text-gray-800'
+                        }`}
+                      >
+                        {item.name}{' '}
+                        <span className="text-gray-500">
+                          ({item.price.toLocaleString()}đ)
+                        </span>
                       </span>
-                    </span>
-                    <button
-                      onClick={() => addToOrder(item, restaurant.name)}
-                      className={`flex size-6 items-center justify-center rounded-full text-white transition-colors ${
-                        isRestaurantDisabled
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-[#ff785b] hover:bg-[#ff5b3b]'
-                      }`}
-                      disabled={isRestaurantDisabled}
-                    >
-                      +
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            addCustomQuantity(item, restaurant.name)
+                          }
+                          className={`flex h-6 w-12 items-center justify-center rounded text-xs font-medium text-white transition-colors ${
+                            isRestaurantDisabled
+                              ? 'cursor-not-allowed bg-gray-400'
+                              : 'bg-green-600 hover:bg-green-700'
+                          }`}
+                          disabled={isRestaurantDisabled}
+                        >
+                          Add
+                        </button>
+                        <button
+                          onClick={() => addToOrder(item, restaurant.name)}
+                          className={`flex size-6 items-center justify-center rounded-full text-white transition-colors ${
+                            isRestaurantDisabled
+                              ? 'cursor-not-allowed bg-gray-400'
+                              : 'bg-[#ff785b] hover:bg-[#ff5b3b]'
+                          }`}
+                          disabled={isRestaurantDisabled}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
@@ -577,6 +650,13 @@ export default function RestaurantOrderPage() {
                 >
                   🔄 Place Another Order
                 </button>
+
+                <button
+                  onClick={() => router.push('/OrderDashboard')}
+                  className="w-full rounded-lg border border-blue-500 py-2 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500 hover:text-white"
+                >
+                  📋 Check Orders
+                </button>
               </div>
 
               {!selectedLocation && order.length > 0 && (
@@ -595,6 +675,17 @@ export default function RestaurantOrderPage() {
         onClose={() => setShowSuccessModal(false)}
         orderTotal={orderTotal}
         onPlaceAnother={handlePlaceAnotherOrder}
+      />
+
+      {/* Item Customization Modal */}
+      <ItemCustomizationModal
+        isOpen={showCustomizationModal}
+        onClose={() => {
+          setShowCustomizationModal(false);
+          setSelectedItem(null);
+        }}
+        onConfirm={handleCustomizationConfirm}
+        itemName={selectedItem?.item.name || ''}
       />
     </main>
   );

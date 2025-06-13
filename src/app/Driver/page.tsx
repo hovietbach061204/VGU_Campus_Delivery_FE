@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { acceptOrder } from '@/app/api/order';
 import { ensureAuthenticated } from '@/lib/auth';
 import { useLiveLocation } from '@/hooks/useLiveLocation';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
 import {
   diagnoseLocationAccess,
   getLocationErrorMessage,
@@ -261,6 +262,9 @@ export default function DriverOrderListener() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 text-gray-800">
+      {/* Home Icon Navigation */}
+      <HomeIconNavigation />
+
       <div className="mx-auto max-w-2xl">
         {/* Location Status Indicator */}
         <div className="mb-4 rounded-lg border bg-white p-3 shadow-sm">
@@ -344,9 +348,33 @@ export default function DriverOrderListener() {
                       Items:
                     </p>
                     <ul className="list-disc pl-4 text-sm text-gray-700">
-                      {(order.foodItems ?? []).map((item, idx) => (
-                        <li key={idx}>{item.toString()}</li>
-                      ))}
+                      {(order.foodItems ?? []).map((item, idx) => {
+                        if (typeof item === 'string') {
+                          return (
+                            <li
+                              key={idx}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="font-medium">{item}</span>
+                              <span className="ml-2 rounded-full bg-gray-400 px-2 py-0.5 text-xs text-white">
+                                x1
+                              </span>
+                            </li>
+                          );
+                        } else {
+                          return (
+                            <li
+                              key={idx}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="font-medium">{item.name}</span>
+                              <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
+                                x{item.quantity || 1}
+                              </span>
+                            </li>
+                          );
+                        }
+                      })}
                     </ul>
                   </div>
 
@@ -418,9 +446,33 @@ export default function DriverOrderListener() {
                       Items:
                     </p>
                     <ul className="list-disc pl-4 text-sm text-gray-700">
-                      {(order.foodItems ?? []).map((item, idx) => (
-                        <li key={idx}>{item.toString()}</li>
-                      ))}
+                      {(order.foodItems ?? []).map((item, idx) => {
+                        if (typeof item === 'string') {
+                          return (
+                            <li
+                              key={idx}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="font-medium">{item}</span>
+                              <span className="ml-2 rounded-full bg-gray-400 px-2 py-0.5 text-xs text-white">
+                                x1
+                              </span>
+                            </li>
+                          );
+                        } else {
+                          return (
+                            <li
+                              key={idx}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="font-medium">{item.name}</span>
+                              <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
+                                x{item.quantity || 1}
+                              </span>
+                            </li>
+                          );
+                        }
+                      })}
                     </ul>
                   </div>
 

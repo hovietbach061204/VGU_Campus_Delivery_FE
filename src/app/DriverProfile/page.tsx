@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
 
 export default function DriverProfile() {
   const router = useRouter();
@@ -25,6 +26,9 @@ export default function DriverProfile() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#fff8f5] px-4 py-12 sm:px-6 lg:px-8">
+      {/* Home Icon Navigation */}
+      <HomeIconNavigation />
+
       <div className="w-full max-w-xl rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-[#ff785b]">Driver Profile</h1>

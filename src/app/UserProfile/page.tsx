@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { ensureAuthenticated } from '@/lib/auth';
 import { getUserProfile, updateUserProfile } from '../api/user';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
 
 export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -72,7 +73,10 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#fff8f6] px-4 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-[#fff8f5] px-4 py-12 sm:px-6 lg:px-8">
+      {/* Home Icon Navigation */}
+      <HomeIconNavigation />
+
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg sm:p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-[#ff785b] [font-family:'Red_Rose-Bold',Helvetica]">
@@ -126,6 +130,6 @@ export default function UserProfile() {
           </Button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

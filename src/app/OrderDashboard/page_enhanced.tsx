@@ -314,7 +314,7 @@ export default function OrderDashboard() {
             getFilteredOrders().map((order) => (
               <div
                 key={order.order_id}
-                className="rounded-lg border bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   {/* Order Info */}

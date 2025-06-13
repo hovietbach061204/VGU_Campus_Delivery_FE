@@ -11,6 +11,19 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { ensureAuthenticated } from '@/lib/auth';
+import { cancelOrder } from '@/lib/orders';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { ensureAuthenticated } from '@/lib/auth';
 import { cancelOrder } from '@/app/api/order';
 
 // Order status types
@@ -192,6 +205,9 @@ export default function OrderDashboard() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6">
+      {/* Home Icon Navigation */}
+      <HomeIconNavigation />
+
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8 text-center">

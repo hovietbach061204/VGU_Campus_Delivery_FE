@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrderRealtime } from '@/hooks/useOrderRealTime';
 import OrderChat from '@/components/OrderChat';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
 
 export default function OrderStatus() {
   const router = useRouter();
@@ -29,6 +30,9 @@ export default function OrderStatus() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-8 text-gray-800">
+      {/* Home Icon Navigation */}
+      <HomeIconNavigation />
+
       <div className="mx-auto max-w-xl rounded border bg-white p-6 shadow">
         <h1 className="mb-6 flex items-center gap-2 text-3xl font-bold text-[#ff785b]">
           🧾 Order Status
