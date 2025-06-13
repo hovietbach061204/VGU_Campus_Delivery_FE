@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { registerUser } from '@/app/api/auth';
+import HomeIconNavigation from '@/components/HomeIconNavigation';
 
 type SignUpFormFields = {
   username: string;
@@ -240,6 +241,7 @@ export default function SignUp() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#ffe5dc] to-[#fff8f6] px-4 py-12">
+      <HomeIconNavigation />
       <div className="w-full max-w-sm space-y-8 sm:max-w-md">
         <h1 className="text-center text-3xl font-semibold text-[#ff785b] sm:text-4xl">
           Sign Up
