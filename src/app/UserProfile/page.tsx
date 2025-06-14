@@ -53,14 +53,6 @@ export default function UserProfile() {
 
   const router = useRouter();
 
-  const resetPasswordFields = () => {
-    setFormData((prev) => ({ ...prev, password: '', confirmPassword: '' }));
-    setHighlight((prev) => ({
-      ...prev,
-      password: true,
-      confirmPassword: true,
-    }));
-  };
   const resetOldPasswordField = () => {
     setFormData((prev) => ({ ...prev, oldPassword: '' }));
     setHighlight((prev) => ({ ...prev, oldPassword: true }));
@@ -74,7 +66,10 @@ export default function UserProfile() {
         setError('');
         setPhonePrompt('Phone number must contain digits only.');
         setHighlight((prev) => ({ ...prev, phone: true }));
-        // Do not auto-clear prompt here
+        setTimeout(() => {
+          setPhonePrompt('');
+          setHighlight((prev) => ({ ...prev, phone: false }));
+        }, 2000); // Notification stays for 2s
         return;
       }
     }
@@ -86,7 +81,7 @@ export default function UserProfile() {
   const validateFields = () => {
     const requiredFields = ['firstName', 'lastName', 'phone', 'dob'];
     let hasError = false;
-    let newHighlight: { [key: string]: boolean } = {};
+    const newHighlight: { [key: string]: boolean } = {};
     requiredFields.forEach((field) => {
       if (!(formData as any)[field].trim()) {
         newHighlight[field] = true;
@@ -98,11 +93,11 @@ export default function UserProfile() {
       setHighlight((prev) => ({ ...prev, ...newHighlight }));
       setTimeout(() => {
         setHighlight((prev) => {
-          let reset: { [key: string]: boolean } = { ...prev };
+          const reset: { [key: string]: boolean } = { ...prev };
           requiredFields.forEach((f) => (reset[f] = false));
           return reset;
         });
-      }, 800);
+      }, 1500);
       return false;
     }
     // Phone number digits only check (should not be needed, but double check)
@@ -111,7 +106,7 @@ export default function UserProfile() {
       setHighlight((prev) => ({ ...prev, phone: true }));
       setTimeout(() => {
         setHighlight((prev) => ({ ...prev, phone: false }));
-      }, 800);
+      }, 2000); // Increased duration to 2s
       return false;
     }
     // Password match check
@@ -132,7 +127,7 @@ export default function UserProfile() {
           password: false,
           confirmPassword: false,
         }));
-      }, 800);
+      }, 1500); // Increased duration
       return false;
     }
     return true;
@@ -175,12 +170,45 @@ export default function UserProfile() {
         setShowSuccessModal(true);
         return; // Don't toggle edit mode yet, wait for user action
       } catch (err: any) {
-        // Backend error handling
+        // Inspect and parse error if needed
         let msg = err.message || '';
-        if (
+        let code = err.code || '';
+        let parsedErr = err;
+        if (typeof err === 'string') {
+          try {
+            parsedErr = JSON.parse(err);
+            code = parsedErr.code;
+            msg = parsedErr.message;
+          } catch {
+            // Not JSON, keep as string
+          }
+        } else if (
+          typeof err === 'object' &&
+          err !== null &&
+          'code' in err &&
+          'message' in err
+        ) {
+          code = err.code;
+          msg = err.message;
+        }
+        console.log('Error caught in UserProfile:', err, 'Parsed:', parsedErr);
+        if (msg.includes('400')) {
+          setError('The old password is incorrect.');
+          setHighlight((prev) => ({ ...prev, oldPassword: true }));
+          setFormData((prev) => ({ ...prev, oldPassword: '' }));
+          setTimeout(() => {
+            setHighlight((prev) => ({ ...prev, oldPassword: false }));
+          }, 1500);
+        } else if (msg === 'Uncategorized error') {
+          setError('The old password is incorrect.');
+          setHighlight((prev) => ({ ...prev, oldPassword: true }));
+          setFormData((prev) => ({ ...prev, oldPassword: '' }));
+          setTimeout(() => {
+            setHighlight((prev) => ({ ...prev, oldPassword: false }));
+          }, 1500);
+        } else if (
           msg.includes('1006') ||
           msg.includes('9999') ||
-          msg.includes('400') ||
           msg.includes('401') ||
           /old password/i.test(msg)
         ) {
@@ -211,7 +239,7 @@ export default function UserProfile() {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
+        className="size-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
       >
         <path
           strokeLinecap="round"
@@ -228,7 +256,7 @@ export default function UserProfile() {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
+        className="size-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
       >
         <>
           <path
@@ -252,14 +280,14 @@ export default function UserProfile() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="rounded-2xl bg-white p-8 shadow-2xl max-w-sm w-full flex flex-col items-center">
+          <div className="max-w-sm w-full flex flex-col items-center rounded-2xl bg-white p-8 shadow-2xl">
             <div className="mb-4 text-2xl font-bold text-[#16a34a]">
               Profile updated successfully!
             </div>
             <div className="mb-6 text-gray-700">
               Your profile has been updated.
             </div>
-            <div className="flex gap-4 w-full">
+            <div className="w-full flex gap-4">
               <Button
                 className="flex-1 bg-[#ff785b] text-white hover:bg-[#ff5b3b]"
                 onClick={() => {
@@ -287,22 +315,49 @@ export default function UserProfile() {
           <h2 className="text-3xl font-bold text-[#ff785b] [font-family:'Red_Rose-Bold',Helvetica]">
             Profile
           </h2>
-          <Button
-            variant="outline"
-            className="rounded-[20px] border-[#ff785b] text-[#ff785b] hover:bg-[#ff785b]/10"
-            onClick={toggleEdit}
-          >
-            {isEditing ? 'Save Changes' : 'Edit'}
-          </Button>
+          {isEditing ? (
+            <Button
+              variant="outline"
+              className="rounded-[20px] border-[#ff785b] text-[#ff785b] hover:bg-[#ff785b]/10"
+              onClick={() => {
+                setIsEditing(false);
+                setError('');
+                setHighlight({});
+                // Optionally reload profile to reset formData
+                const { token, userId } = ensureAuthenticated();
+                getUserProfile(userId, token).then((profile) => {
+                  setFormData({
+                    firstName: profile.firstName || '',
+                    lastName: profile.lastName || '',
+                    phone: profile.phone || '',
+                    password: '',
+                    confirmPassword: '',
+                    oldPassword: '',
+                    dob: profile.dob || '',
+                  });
+                });
+              }}
+            >
+              Cancel
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className="rounded-[20px] border-[#ff785b] text-[#ff785b] hover:bg-[#ff785b]/10"
+              onClick={toggleEdit}
+            >
+              Edit
+            </Button>
+          )}
         </div>
         {error && (
           <div
-            className={
-              `mb-4 rounded bg-red-100 px-4 py-2 text-sm text-red-700 font-semibold animate-pulse ` +
-              (error ? 'animate-shake' : '')
-            }
-            style={{ animationDuration: '0.5s' }}
+            className={`mb-4 sticky top-0 z-50 rounded border border-red-400 bg-red-200 px-4 py-3 text-base font-bold text-red-800 shadow animate-pulse animate-shake`}
+            style={{ animationDuration: '0.7s' }}
+            role="alert"
+            aria-live="assertive"
           >
+            <span className="mr-2 inline-block align-middle">⚠️</span>
             {error}
           </div>
         )}
@@ -365,11 +420,13 @@ export default function UserProfile() {
                   field.id !== 'password' &&
                   field.id !== 'confirmPassword'
                 }
-                className={`h-[45px] w-full rounded-[30px] border px-5 text-sm transition-all duration-300
-                  ${isEditing ? 'border-[#ff785b]' : 'border-gray-300 bg-gray-100'}
-                  text-[#444] placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50
-                  ${highlight[field.id] ? 'border-2 border-red-500 ring-2 ring-red-300 animate-shake' : ''}
-                `}
+                className={
+                  ['oldPassword', 'password', 'confirmPassword'].includes(
+                    field.id
+                  )
+                    ? `ring-offset-background focus-visible:ring-ring flex py-2 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-12 w-full rounded-[33px] border bg-white px-6 text-sm text-[#333] shadow-sm placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50 transition-all duration-300 border-[#ff785b]${highlight[field.id] ? ' border-2 border-red-500 ring-2 ring-red-300 animate-shake' : ''} pr-12`
+                    : `w-full h-[45px] rounded-[30px] border px-5 text-sm transition-all duration-300${isEditing ? ' border-[#ff785b]' : ' border-gray-300 bg-gray-100'} text-[#444] placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50${highlight[field.id] ? ' border-2 border-red-500 ring-2 ring-red-300 animate-shake' : ''}`
+                }
                 autoComplete={
                   field.id === 'oldPassword' ? 'current-password' : 'off'
                 }
@@ -388,18 +445,20 @@ export default function UserProfile() {
                 field.id
               ) && (
                 <span
-                  className="absolute right-4 top-1/2 -translate-y-[60%] z-10 cursor-pointer"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 mt-3.5 z-10"
                   onClick={() => handleTogglePassword(field.id)}
-                  onMouseDown={(e) => e.preventDefault()}
                   tabIndex={0}
                   role="button"
                   aria-label={
-                    showPassword[String(field.id)]
-                      ? 'Hide password'
-                      : 'Show password'
+                    showPassword[field.id] ? 'Hide password' : 'Show password'
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleTogglePassword(field.id);
+                    }
+                  }}
                 >
-                  <EyeIcon open={showPassword[String(field.id)]} />
+                  <EyeIcon open={showPassword[field.id]} />
                 </span>
               )}
             </div>

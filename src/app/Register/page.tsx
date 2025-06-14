@@ -69,7 +69,7 @@ export default function SignUp() {
         setTimeout(() => {
           setHighlight((prev) => ({ ...prev, phoneNumber: false }));
           setPhonePrompt('');
-        }, 800);
+        }, 2000); // Notification stays for 2s
         return;
       }
     }
@@ -78,6 +78,7 @@ export default function SignUp() {
     setError('');
   };
 
+  // Use 'const' for never reassigned variables
   const validateFields = () => {
     const requiredFields = [
       'username',
@@ -89,7 +90,7 @@ export default function SignUp() {
       'phoneNumber',
     ];
     let hasError = false;
-    let newHighlight: { [key: string]: boolean } = {};
+    const newHighlight: { [key: string]: boolean } = {};
     requiredFields.forEach((field) => {
       if (!(formData as any)[field].trim()) {
         newHighlight[field] = true;
@@ -100,11 +101,9 @@ export default function SignUp() {
       setError('All fields are required.');
       setHighlight((prev) => ({ ...prev, ...newHighlight }));
       setTimeout(() => {
-        setHighlight((prev) => {
-          let reset: { [key: string]: boolean } = { ...prev };
-          requiredFields.forEach((f) => (reset[f] = false));
-          return reset;
-        });
+        const reset: { [key: string]: boolean } = { ...highlight };
+        requiredFields.forEach((f) => (reset[f] = false));
+        setHighlight(reset);
       }, 800);
       return false;
     }
@@ -206,7 +205,7 @@ export default function SignUp() {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
+        className="size-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
       >
         <path
           strokeLinecap="round"
@@ -222,7 +221,7 @@ export default function SignUp() {
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
+        className="size-5 cursor-pointer text-gray-500 hover:text-[#ff785b]"
       >
         <>
           <path
@@ -290,6 +289,11 @@ export default function SignUp() {
                   aria-label={
                     showPassword[field.id] ? 'Hide password' : 'Show password'
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleTogglePassword(field.id);
+                    }
+                  }}
                 >
                   <EyeIcon open={showPassword[field.id]} />
                 </span>
