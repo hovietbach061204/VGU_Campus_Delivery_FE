@@ -1,9 +1,30 @@
-import React, { JSX } from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { Button } from '@/components/ui/button';
+export default function HeroSection() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const router = useRouter();
+  const [isDelivering, setIsDelivering] = useState(false); // Track if user is delivering
 
-export default function HeroSection(): JSX.Element {
+  const handleStartDelivering = () => {
+    const confirmDelivery = confirm(
+      'Are you sure you want to start delivering?'
+    );
+    if (confirmDelivery) {
+      setIsDelivering(true);
+      localStorage.setItem('isDelivering', 'true'); // Save delivering status to localStorage
+    }
+  };
+
+  const handleTimeToOrder = () => {
+    setIsDelivering(false);
+    localStorage.setItem('isDelivering', 'false'); // Reset delivering status
+  };
+
   return (
     <section className="container mx-auto flex flex-col-reverse items-center justify-between gap-10 px-4 py-16 md:flex-row md:gap-8">
       {/* Left side image */}
@@ -29,9 +50,21 @@ export default function HeroSection(): JSX.Element {
         </p>
 
         <div className="mt-6">
-          <Button className="rounded-[10px] bg-[#fdad00] px-6 py-4 font-['Red_Rose-Bold',Helvetica] text-base font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#e69d00] sm:text-lg md:text-xl">
-            Start delivering
-          </Button>
+          {!isDelivering ? (
+            <Button
+              onClick={handleStartDelivering}
+              className="rounded-[10px] bg-[#fdad00] px-6 py-4 font-['Red_Rose-Bold',Helvetica] text-base font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#e69d00] sm:text-lg md:text-xl"
+            >
+              Start Delivering
+            </Button>
+          ) : (
+            <Button
+              onClick={handleTimeToOrder}
+              className="rounded-[10px] bg-[#ff785b] px-6 py-4 font-['Red_Rose-Bold',Helvetica] text-base font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#e69d00] sm:text-lg md:text-xl"
+            >
+              Time to Order
+            </Button>
+          )}
         </div>
       </div>
     </section>

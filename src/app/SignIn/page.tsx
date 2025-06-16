@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -15,18 +16,27 @@ export default function SignIn() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError(''); // Reset error state on form submit
 
     try {
       // Simulating login process (mock)
-      const isAdmin = username === 'admin'; // Simulate admin login
-      localStorage.setItem('isAdmin', String(isAdmin)); // Save role
+      const isAdmin = username === 'admin'; // Simulate admin login based on username
+      const userToken = 'fake-token'; // Simulated user token
 
-      // Redirect after login
-      router.push(isAdmin ? '/AdminProfile' : '/UserProfile');
+      if (!username || !password) {
+        setError('Username and password are required.');
+        return;
+      }
+
+      // Save token and role in localStorage (This should ideally be handled with secure cookies or a token)
+      localStorage.setItem('isAdmin', String(isAdmin)); // Save role
+      localStorage.setItem('userToken', userToken); // Store user token
+
+      // Redirect user to the respective profile page
+      router.push('/');
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError('Something went wrong');
+      setError('Something went wrong'); // Handle error (in real case, log to a service)
     } finally {
       setLoading(false);
     }
@@ -36,10 +46,10 @@ export default function SignIn() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#ffe5dc] to-[#fff8f6] px-4 py-12">
       <div className="w-full max-w-sm space-y-8 sm:max-w-md">
         <h1 className="text-center text-3xl font-semibold text-[#ff785b] sm:text-4xl">
-          VGU Delivery
+          Sign In
         </h1>
 
-        <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <Input
             id="username"
             type="text"
@@ -56,15 +66,14 @@ export default function SignIn() {
             onChange={(e) => setPassword(e.target.value)}
             className="h-12 w-full rounded-[33px] border border-[#ff785b] bg-white px-6 text-sm text-[#333] shadow-sm placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50"
           />
-
-          {error && <p className="text-center text-sm text-red-500">{error}</p>}
-
+          {error && <p className="text-center text-sm text-red-500">{error}</p>}{' '}
+          {/* Error message on login failure */}
           <Button
             type="submit"
             className="h-[45px] w-full rounded-[33px] bg-[#ff785b] font-semibold text-white transition hover:bg-[#e96c4e]"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Eat Away!'}
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>
 
@@ -79,13 +88,11 @@ export default function SignIn() {
           </div>
         </div>
 
-        <Link href="/Register" className="block">
-          <Button
-            variant="default"
-            className="h-[55px] w-full rounded-[33px] bg-[#ff785b] text-lg font-medium text-white shadow hover:bg-[#e96c4e]"
-          >
-            Sign Up
-          </Button>
+        <Link
+          href="/Register"
+          className="block text-center text-sm text-[#ff785b] hover:underline"
+        >
+          Don&#39;t have an account? Sign Up
         </Link>
       </div>
     </div>

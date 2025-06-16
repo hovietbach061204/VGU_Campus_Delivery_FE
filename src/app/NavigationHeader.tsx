@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,16 +9,28 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from '@/components/ui/NavigationMenu';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export const NavigationHeader = (): React.JSX.Element => {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userName, setUserName] = useState<string>(''); // Store the signed-in user's name
+
+  // Check user sign-in status on load
+  useEffect(() => {
+    const userToken = localStorage.getItem('userToken'); // Check if user is signed in
+    const storedUserName = localStorage.getItem('userName'); // Get the username
+    setIsSignedIn(!!userToken); // Set sign-in status
+    setUserName(storedUserName || ''); // Set the username if available
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('userToken'); // Clear user token
+    localStorage.removeItem('userName'); // Clear username
+    setIsSignedIn(false); // Update sign-in status
+    setUserName(''); // Clear username
+  };
+
   const navItems = [
-    { label: 'Home', isBold: true, href: '#' },
+    { label: 'Home', isBold: true, href: '/' },
     { label: 'Tracking', isBold: false, href: '#' },
     { label: 'Shipping', isBold: false, href: '#' },
     { label: 'Locations', isBold: false, href: '#' },
@@ -54,40 +66,49 @@ export const NavigationHeader = (): React.JSX.Element => {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href="/SignIn">
-            <Button
-              variant="outline"
-              className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
-            >
-              Sign in
-            </Button>
-          </Link>
+          {!isSignedIn ? (
+            <>
+              <Link href="/SignIn">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
+                >
+                  Sign in
+                </Button>
+              </Link>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+              <Link href="/Register">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
+                >
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <span className="font-medium text-white">
+                Welcome, {userName}
+              </span>
+              <Link href="/UserProfile">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
+                >
+                  Profile
+                </Button>
+              </Link>
+
               <Button
+                onClick={handleSignOut}
                 variant="outline"
                 className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
               >
-                Profile
+                Sign Out
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="rounded-md bg-white text-black shadow-lg"
-            >
-              <DropdownMenuItem>
-                <Link href="/UserProfile" className="block w-full">
-                  User
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/DriverProfile" className="block w-full">
-                  Driver
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </>
+          )}
         </div>
       </div>
     </header>

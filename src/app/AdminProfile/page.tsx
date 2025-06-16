@@ -28,10 +28,6 @@ export default function AdminProfile() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleViewOrders = () => {
-    router.push('/OrderStatus');
-  };
-
   const handleEditMenu = () => {
     router.push('/MenuEditing'); // Navigate to the restaurant menu editing page
   };
@@ -88,16 +84,6 @@ export default function AdminProfile() {
             className="w-full rounded-[33px] bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
           >
             Edit Menu
-          </Button>
-        </div>
-
-        {/* View Order Button */}
-        <div className="mt-6 text-center">
-          <Button
-            onClick={handleViewOrders}
-            className="rounded-full bg-[#ff785b] px-6 py-2 text-white hover:bg-[#ff5b3b]"
-          >
-            View Current Orders
           </Button>
         </div>
       </div>

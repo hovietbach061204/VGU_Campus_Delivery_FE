@@ -1,13 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/Card';
+import { useRouter } from 'next/navigation';
 
 export default function MenuSection() {
+  const [isSignedIn, setIsSignedIn] = useState(false); // Track sign-in status
+  const router = useRouter(); // Router to navigate when needed
+
   const menuItems = [
     {
       id: 1,
@@ -66,6 +70,22 @@ export default function MenuSection() {
       featured: false,
     },
   ];
+
+  // Check if user is signed in when the component loads
+  useEffect(() => {
+    const userToken = localStorage.getItem('userToken');
+    setIsSignedIn(!!userToken); // Set sign-in status based on userToken
+  }, []);
+
+  // Handle button click for "See all menu"
+  const handleSeeAllMenuClick = () => {
+    if (!isSignedIn) {
+      alert('Please sign in to view the full menu');
+      router.push('/SignIn'); // Redirect to sign-in page if not signed in
+    } else {
+      router.push('/Restaurant_Order'); // Redirect to Restaurant_Order if signed in
+    }
+  };
 
   return (
     <section className="w-full bg-[#29b0671a] px-4 py-16 sm:px-8 lg:rounded-bl-[250px] lg:px-16 xl:px-[170px]">
@@ -131,11 +151,12 @@ export default function MenuSection() {
           ))}
         </div>
 
-        <Link href="/Restaurant_Order">
-          <Button className="h-[52px] w-[180px] rounded-[10px] bg-[#fdad00] text-lg font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#fdad00]/90 sm:text-[22px]">
-            See all menu
-          </Button>
-        </Link>
+        <Button
+          className="h-[52px] w-[180px] rounded-[10px] bg-[#fdad00] text-lg font-bold text-white shadow-[0px_8px_12px_#ffeaa273] hover:bg-[#fdad00]/90 sm:text-[22px]"
+          onClick={handleSeeAllMenuClick}
+        >
+          See all menu
+        </Button>
       </div>
     </section>
   );
