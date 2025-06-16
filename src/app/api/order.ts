@@ -92,9 +92,9 @@ export async function fetchPendingOrders(userId: string, token: string) {
   return data.result;
 }
 
-export async function cancelOrder(orderId: string, token: string) {
+export async function deleteOrder(orderId: string, token: string) {
   const res = await fetchWithAuth(
-    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/cancel`,
+    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}`,
     {
       method: 'DELETE',
       headers: {
@@ -107,6 +107,66 @@ export async function cancelOrder(orderId: string, token: string) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || 'Failed to cancel order');
+  }
+
+  return res.json();
+}
+
+export async function cancelOrder(orderId: string, token: string) {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/cancel`,
+    {
+      method: 'POST', // ✅ must be POST, not DELETE
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to cancel order');
+  }
+
+  return res.json(); // { status: "CANCELLED", message: "Order xyz cancelled" }
+}
+
+export async function advanceOrderStatus(orderId: string, token: string) {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/status`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to update order status');
+  }
+
+  return res.json();
+}
+
+export async function revertOrderToPending(orderId: string, token: string) {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/orders/${orderId}/status/pending`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to revert status');
   }
 
   return res.json();

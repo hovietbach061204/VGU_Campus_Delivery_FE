@@ -11,23 +11,12 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { ensureAuthenticated } from '@/lib/auth';
-import { cancelOrder } from '@/lib/orders';
+import { deleteOrder } from '@/app/api/order';
 import HomeIconNavigation from '@/components/HomeIconNavigation';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  collection,
-  onSnapshot,
-  query,
-  where,
-  orderBy,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { ensureAuthenticated } from '@/lib/auth';
-import { cancelOrder } from '@/app/api/order';
+import { ORDER_STATUSES } from '@/lib/constant';
 
 // Order status types
-type OrderStatus = 'PENDING' | 'ACCEPTED' | 'IN_TRANSIT' | 'DELIVERED';
+type OrderStatus = 'PENDING' | 'ASSIGNED' | 'DELIVERING' | 'DELIVERED';
 
 interface Order {
   order_id: string;
@@ -61,7 +50,7 @@ export default function OrderDashboard() {
     delivering: 0,
     delivered: 0,
   });
-  const [newUpdates, setNewUpdates] = useState<{ [key: string]: number }>({});
+  // const [newUpdates, setNewUpdates] = useState<{ [key: string]: number }>({});
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
@@ -96,10 +85,16 @@ export default function OrderDashboard() {
       // Calculate status counts
       const counts = {
         all: liveOrders.length,
-        pending: liveOrders.filter((o) => o.status === 'PENDING').length,
-        assigned: liveOrders.filter((o) => o.status === 'ACCEPTED').length,
-        delivering: liveOrders.filter((o) => o.status === 'IN_TRANSIT').length,
-        delivered: liveOrders.filter((o) => o.status === 'DELIVERED').length,
+        pending: liveOrders.filter((o) => o.status === ORDER_STATUSES.PENDING)
+          .length,
+        assigned: liveOrders.filter((o) => o.status === ORDER_STATUSES.ASSIGNED)
+          .length,
+        delivering: liveOrders.filter(
+          (o) => o.status === ORDER_STATUSES.DELIVERING
+        ).length,
+        delivered: liveOrders.filter(
+          (o) => o.status === ORDER_STATUSES.DELIVERED
+        ).length,
       };
 
       // Detect new updates (simplified logic)
@@ -115,7 +110,7 @@ export default function OrderDashboard() {
           updates.delivered = counts.delivered - prevCounts.delivered;
         }
 
-        setNewUpdates((prev) => ({ ...prev, ...updates }));
+        // setNewUpdates((prev) => ({ ...prev, ...updates }));
         return counts;
       });
 
@@ -133,7 +128,7 @@ export default function OrderDashboard() {
 
     try {
       const auth = ensureAuthenticated();
-      await cancelOrder(orderId, auth.token);
+      await deleteOrder(orderId, auth.token);
       alert('Order cancelled successfully');
     } catch (err: any) {
       alert(`Failed to cancel order: ${err.message}`);
@@ -148,18 +143,18 @@ export default function OrderDashboard() {
     window.open(`/Map/OrderTrackingPage?orderId=${orderId}`, '_blank');
   };
 
-  const clearNotification = (tab: string) => {
-    setNewUpdates((prev) => ({ ...prev, [tab]: 0 }));
-  };
+  // const clearNotification = (tab: string) => {
+  //   // setNewUpdates((prev) => ({ ...prev, [tab]: 0 }));
+  // };
 
   const getFilteredOrders = () => {
     switch (activeTab) {
       case 'pending':
         return orders.filter((o) => o.status === 'PENDING');
       case 'assigned':
-        return orders.filter((o) => o.status === 'ACCEPTED');
+        return orders.filter((o) => o.status === 'ASSIGNED');
       case 'delivering':
-        return orders.filter((o) => o.status === 'IN_TRANSIT');
+        return orders.filter((o) => o.status === 'DELIVERING');
       case 'delivered':
         return orders.filter((o) => o.status === 'DELIVERED');
       default:
@@ -171,9 +166,9 @@ export default function OrderDashboard() {
     switch (status) {
       case 'PENDING':
         return 'text-yellow-600 bg-yellow-50';
-      case 'ACCEPTED':
+      case 'ASSIGNED':
         return 'text-blue-600 bg-blue-50';
-      case 'IN_TRANSIT':
+      case 'DELIVERING':
         return 'text-purple-600 bg-purple-50';
       case 'DELIVERED':
         return 'text-green-600 bg-green-50';
@@ -260,7 +255,7 @@ export default function OrderDashboard() {
               key={tab.key}
               onClick={() => {
                 setActiveTab(tab.key as any);
-                clearNotification(tab.key);
+                // clearNotification(tab.key);
               }}
               className={`relative rounded-lg px-4 py-3 font-medium transition-all ${
                 activeTab === tab.key
@@ -280,11 +275,11 @@ export default function OrderDashboard() {
                   {tab.count}
                 </span>
               )}
-              {newUpdates[tab.key] > 0 && (
+              {/* {newUpdates[tab.key] > 0 && (
                 <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                   {newUpdates[tab.key]}
                 </span>
-              )}
+              )} */}
             </button>
           ))}
         </div>
@@ -376,7 +371,7 @@ export default function OrderDashboard() {
                     )}
 
                     {/* Assigned Status Actions */}
-                    {order.status === 'ACCEPTED' && (
+                    {order.status === 'ASSIGNED' && (
                       <>
                         <button
                           onClick={() => handleCancelOrder(order.order_id)}
@@ -405,7 +400,7 @@ export default function OrderDashboard() {
                     )}
 
                     {/* Delivering Status Actions */}
-                    {order.status === 'IN_TRANSIT' && (
+                    {order.status === 'DELIVERING' && (
                       <>
                         <button
                           onClick={() => handleChatWithDriver(order.order_id)}

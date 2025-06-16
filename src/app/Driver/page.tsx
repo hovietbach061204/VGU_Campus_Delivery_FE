@@ -3,7 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { acceptOrder } from '@/app/api/order';
+import {
+  acceptOrder,
+  advanceOrderStatus,
+  revertOrderToPending,
+} from '@/app/api/order';
 import { ensureAuthenticated } from '@/lib/auth';
 import { useLiveLocation } from '@/hooks/useLiveLocation';
 import HomeIconNavigation from '@/components/HomeIconNavigation';
@@ -26,14 +30,32 @@ type FirestoreOrder = {
 };
 
 const MAX_LOCATION_RETRIES = 3;
+interface StatusCount {
+  pending: number;
+  assigned: number;
+  delivering: number;
+  delivered: number;
+}
 
 export default function DriverOrderListener() {
   const [orders, setOrders] = useState<FirestoreOrder[]>([]);
+  const [availableOrders, setAvailableOrders] = useState<FirestoreOrder[]>([]);
   const [deliveringOrders, setDeliveringOrders] = useState<FirestoreOrder[]>(
     []
   );
+  const [activeTab, setActiveTab] = useState<
+    'pending' | 'assigned' | 'delivering' | 'delivered'
+  >('pending');
+
   const [sortBy, setSortBy] = useState<'asc' | 'desc'>('asc');
   const [locationPreloaded, setLocationPreloaded] = useState(false);
+  const [statusCounts, setStatusCounts] = useState<StatusCount>({
+    pending: 0,
+    assigned: 0,
+    delivering: 0,
+    delivered: 0,
+  });
+  const allOrders = [...availableOrders, ...orders];
 
   // Preload driver location when component mounts
   useEffect(() => {
@@ -53,18 +75,48 @@ export default function DriverOrderListener() {
   }, []);
 
   useEffect(() => {
-    const q = query(collection(db, 'orders'), where('status', '==', 'PENDING'));
+    const auth = ensureAuthenticated();
+    const driverId = auth.userId;
+
+    const q = query(
+      collection(db, 'orders'),
+      where('delivery_man_id', '==', driverId)
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const liveOrders = snapshot.docs.map((doc) => {
-        const data = doc.data() as Omit<FirestoreOrder, 'id'>;
-        console.log(data);
-        return { id: doc.id, ...data };
-      });
-      setOrders(liveOrders);
+      const allOrders = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as FirestoreOrder),
+      }));
+      setOrders(allOrders);
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'orders'), where('status', '==', 'PENDING'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const available = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as FirestoreOrder),
+      }));
+      setAvailableOrders(available); // <-- use a separate state
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const counts = {
+      all: allOrders.length,
+      pending: allOrders.filter((o) => o.status === 'PENDING').length,
+      assigned: allOrders.filter((o) => o.status === 'ASSIGNED').length,
+      delivering: allOrders.filter((o) => o.status === 'DELIVERING').length,
+      delivered: allOrders.filter((o) => o.status === 'DELIVERED').length,
+    };
+    setStatusCounts(counts);
   }, []);
 
   // Enable live location tracking for the first active delivery order (if any)
@@ -105,6 +157,13 @@ export default function DriverOrderListener() {
       };
     }
 
+    // const statusCounts = {
+    //   pending: orders.filter((o) => o.status === 'PENDING').length,
+    //   assigned: orders.filter((o) => o.status === 'ASSIGNED').length,
+    //   delivering: orders.filter((o) => o.status === 'DELIVERING').length,
+    //   delivered: orders.filter((o) => o.status === 'DELIVERED').length,
+    // };
+
     // Try fresh location detection with optimized timeouts
     const timeouts = [3000, 5000, 8000]; // Shorter, more responsive timeouts
     const timeout = timeouts[Math.min(retryCount, timeouts.length - 1)];
@@ -139,6 +198,41 @@ export default function DriverOrderListener() {
         }
       );
     });
+  };
+
+  const handleStartDelivery = async (orderId: string) => {
+    try {
+      const { token } = ensureAuthenticated();
+      const result = await advanceOrderStatus(orderId, token);
+      alert(result?.message || 'Order marked as Delivering!');
+    } catch (err: any) {
+      alert(err.message || 'FailFed to update status to IN_TRANSIT');
+    }
+  };
+
+  const handleMarkDelivered = async (orderId: string) => {
+    try {
+      const { token } = ensureAuthenticated();
+      const result = await advanceOrderStatus(orderId, token);
+      alert(result?.message || 'Order marked as Delivered!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to update status to DELIVERED');
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    const confirmCancel = confirm(
+      'Are you sure you want to cancel this order?'
+    );
+    if (!confirmCancel) return;
+
+    try {
+      const { token } = ensureAuthenticated();
+      const result = await revertOrderToPending(orderId, token);
+      alert(result?.message || 'Order cancelled successfully');
+    } catch (err: any) {
+      alert(err.message || 'Failed to cancel order');
+    }
   };
 
   const handleAccept = async (orderId: string) => {
@@ -261,10 +355,64 @@ export default function DriverOrderListener() {
     setOrders((prev) => prev.filter((o) => o.order_id !== orderId));
   };
 
+  const filteredOrders = allOrders.filter((o) => {
+    switch (activeTab) {
+      case 'pending':
+        return o.status === 'PENDING';
+      case 'assigned':
+        return o.status === 'ASSIGNED';
+      case 'delivering':
+        return o.status === 'DELIVERING';
+      case 'delivered':
+        return o.status === 'DELIVERED';
+      default:
+        return true; // For 'all'
+    }
+  });
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 text-gray-800">
       {/* Home Icon Navigation */}
       <HomeIconNavigation />
+      <div className="mb-6 flex flex-wrap justify-center gap-2 md:gap-4">
+        {[
+          { key: 'pending', label: 'Pending', count: statusCounts.pending },
+          { key: 'assigned', label: 'Assigned', count: statusCounts.assigned },
+          {
+            key: 'delivering',
+            label: 'Delivering',
+            count: statusCounts.delivering,
+          },
+          {
+            key: 'delivered',
+            label: 'Delivered',
+            count: statusCounts.delivered,
+          },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as any)}
+            className={`relative rounded-lg px-4 py-3 font-medium transition-all ${
+              activeTab === tab.key
+                ? 'bg-[#ff785b] text-white shadow-md'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <span>{tab.label}</span>
+            {tab.count > 0 && (
+              <span
+                className={`ml-2 rounded-full px-2 py-1 text-xs ${
+                  activeTab === tab.key
+                    ? 'bg-white text-[#ff785b]'
+                    : 'bg-[#ff785b] text-white'
+                }`}
+              >
+                {tab.count}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
       <div className="mx-auto max-w-2xl">
         {/* Location Status Indicator */}
         <div className="mb-4 rounded-lg border bg-white p-3 shadow-sm">
@@ -288,8 +436,11 @@ export default function DriverOrderListener() {
         </div>
 
         <div className="mb-6 flex items-center justify-between border-b pb-3">
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-[#ff785b]">
-            <span>📦</span> Available Orders
+          <h1 className="...">
+            {activeTab === 'pending' && '📦 Available Orders'}
+            {activeTab === 'assigned' && '✅ Assigned Orders'}
+            {activeTab === 'delivering' && '🚚 Delivering Orders'}
+            {activeTab === 'delivered' && '📬 Delivered Orders'}
           </h1>
           <select
             value={sortBy}
@@ -301,13 +452,13 @@ export default function DriverOrderListener() {
           </select>
         </div>
 
-        {orders.length === 0 ? (
+        {filteredOrders.length === 0 ? (
           <p className="text-center text-sm text-gray-500">
-            No available orders.
+            No orders found for this status.
           </p>
         ) : (
           <ul className="space-y-5">
-            {orders
+            {filteredOrders
               .sort((a, b) =>
                 sortBy === 'asc'
                   ? a.total_price.localeCompare(b.total_price, undefined, {
@@ -390,31 +541,55 @@ export default function DriverOrderListener() {
                     </ul>
                   </div>
 
-                  <div className="mt-4 flex gap-3">
-                    <button
-                      onClick={() => handleAccept(order.order_id)}
-                      data-order-id={order.order_id}
-                      className={`flex-1 rounded py-2 font-medium text-white shadow-sm transition-colors disabled:bg-gray-400 ${
-                        locationPreloaded
-                          ? 'bg-green-600 hover:bg-green-700'
-                          : 'bg-yellow-600 hover:bg-yellow-700'
-                      }`}
-                      title={
-                        locationPreloaded
-                          ? 'Location ready - instant acceptance'
-                          : 'Location not ready - may take longer'
-                      }
-                    >
-                      {locationPreloaded
-                        ? '⚡ Accept Order'
-                        : '⏳ Accept Order'}
-                    </button>
-                    <button
-                      onClick={() => handlePass(order.order_id)}
-                      className="flex-1 rounded bg-gray-300 py-2 font-medium text-gray-800 shadow-sm hover:bg-gray-400"
-                    >
-                      Pass
-                    </button>
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    {activeTab === 'pending' && order.status === 'PENDING' && (
+                      <>
+                        <button
+                          onClick={() => handleAccept(order.order_id)}
+                          data-order-id={order.order_id}
+                          className={`flex-1 rounded py-2 font-medium text-white shadow-sm transition-colors disabled:bg-gray-400 ${
+                            locationPreloaded
+                              ? 'bg-green-600 hover:bg-green-700'
+                              : 'bg-yellow-600 hover:bg-yellow-700'
+                          }`}
+                        >
+                          {locationPreloaded
+                            ? '⚡ Accept Order'
+                            : '⏳ Accept Order'}
+                        </button>
+                        <button
+                          onClick={() => handlePass(order.order_id)}
+                          className="flex-1 rounded bg-gray-300 py-2 font-medium text-gray-800 shadow-sm hover:bg-gray-400"
+                        >
+                          Pass
+                        </button>
+                      </>
+                    )}
+
+                    {order.status === 'ASSIGNED' && (
+                      <>
+                        <button
+                          onClick={() => handleStartDelivery(order.order_id)}
+                          className="w-full rounded bg-blue-500 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-600"
+                        >
+                          🚚 Start Delivery
+                        </button>
+                        <button
+                          onClick={() => handleCancelOrder(order.order_id)}
+                          className="w-full rounded bg-red-500 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-red-600"
+                        >
+                          ❌ Cancel Order
+                        </button>
+                      </>
+                    )}
+                    {order.status === 'DELIVERING' && (
+                      <button
+                        onClick={() => handleMarkDelivered(order.order_id)}
+                        className="w-full rounded bg-green-600 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-green-700"
+                      >
+                        📬 Mark as Delivered
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}
@@ -493,20 +668,24 @@ export default function DriverOrderListener() {
                   </div>
 
                   {/* Simplified Chat Section - Only Full Screen Chat Button */}
-                  <div className="mt-4">
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `/DeliveryStatus?orderId=${order.order_id}`,
-                            '_blank'
-                          )
-                        }
-                        className="w-full rounded bg-[#ff785b] py-3 font-semibold text-white shadow-sm transition-colors hover:bg-[#ff5b3b]"
-                      >
-                        💬 Chat with Purchaser
-                      </button>
-                    </div>
+                  <div className="mt-4 flex flex-col justify-center gap-3 sm:flex-row">
+                    {/* <button
+                      onClick={() =>
+                        window.open(
+                          `/DeliveryStatus?orderId=${order.order_id}`,
+                          '_blank'
+                        )
+                      }
+                      className="w-full rounded bg-[#ff785b] py-3 font-semibold text-white shadow-sm transition-colors hover:bg-[#ff5b3b] sm:w-1/2"
+                    >
+                      💬 Chat with Purchaser
+                    </button> */}
+                    <button
+                      onClick={() => handleMarkDelivered(order.order_id)}
+                      className="w-full rounded bg-green-600 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-green-700 sm:w-1/2"
+                    >
+                      📬 Mark as Delivered
+                    </button>
                   </div>
                 </li>
               ))}
