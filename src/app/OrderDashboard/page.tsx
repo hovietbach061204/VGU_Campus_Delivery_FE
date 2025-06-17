@@ -14,6 +14,8 @@ import { ensureAuthenticated } from '@/lib/auth';
 import { deleteOrder } from '@/app/api/order';
 import HomeIconNavigation from '@/components/HomeIconNavigation';
 import { ORDER_STATUSES } from '@/lib/constant';
+import OrderChat from '@/components/OrderChat';
+import { getUserProfile } from '@/app/api/user';
 
 // Order status types
 type OrderStatus = 'PENDING' | 'ASSIGNED' | 'DELIVERING' | 'DELIVERED';
@@ -53,6 +55,13 @@ export default function OrderDashboard() {
   // const [newUpdates, setNewUpdates] = useState<{ [key: string]: number }>({});
   const [userId, setUserId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+  const [showSuccessPrompt, setShowSuccessPrompt] = useState(false);
+  const [driverNames, setDriverNames] = useState<{ [id: string]: string }>({});
+  const [driverPhones, setDriverPhones] = useState<{ [id: string]: string }>(
+    {}
+  );
 
   useEffect(() => {
     try {
@@ -120,27 +129,57 @@ export default function OrderDashboard() {
     return () => unsubscribe();
   }, [userId]);
 
-  const handleCancelOrder = async (orderId: string) => {
-    const confirmCancel = confirm(
-      'Are you sure you want to cancel this order?'
-    );
-    if (!confirmCancel) return;
+  // Fetch driver names and phone numbers for all orders with a delivery_man_id
+  useEffect(() => {
+    const fetchDriverInfo = async () => {
+      const auth = ensureAuthenticated();
+      const ids = Array.from(
+        new Set(
+          orders
+            .map((o) => o.delivery_man_id)
+            .filter((id): id is string => !!id)
+        )
+      );
+      const names: { [id: string]: string } = {};
+      const phones: { [id: string]: string } = {};
+      await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const profile = await getUserProfile(id, auth.token);
+            names[id] = profile?.firstName
+              ? `${profile.firstName} ${profile.lastName || ''}`
+              : id.slice(0, 8) + '...';
+            phones[id] = profile?.phoneNumber || '';
+          } catch {
+            names[id] = id.slice(0, 8) + '...';
+            phones[id] = '';
+          }
+        })
+      );
+      setDriverNames(names);
+      setDriverPhones(phones);
+    };
+    if (orders.some((o) => o.delivery_man_id)) fetchDriverInfo();
+  }, [orders]);
 
+  const handleCancelOrder = (orderId: string) => {
+    setOrderToCancel(orderId);
+    setShowCancelDialog(true);
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!orderToCancel) return;
     try {
       const auth = ensureAuthenticated();
-      await deleteOrder(orderId, auth.token);
-      alert('Order cancelled successfully');
+      await deleteOrder(orderToCancel, auth.token);
+      setShowCancelDialog(false);
+      setShowSuccessPrompt(true);
+      setOrderToCancel(null);
     } catch (err: any) {
+      setShowCancelDialog(false);
+      setOrderToCancel(null);
       alert(`Failed to cancel order: ${err.message}`);
     }
-  };
-
-  const handleChatWithDriver = (orderId: string) => {
-    window.open(`/Chat?orderId=${orderId}&role=purchaser`, '_blank');
-  };
-
-  const handleViewMap = (orderId: string) => {
-    window.open(`/Map/OrderTrackingPage?orderId=${orderId}`, '_blank');
   };
 
   // const clearNotification = (tab: string) => {
@@ -150,13 +189,15 @@ export default function OrderDashboard() {
   const getFilteredOrders = () => {
     switch (activeTab) {
       case 'pending':
-        return orders.filter((o) => o.status === 'PENDING');
+        // Strictly show only PENDING orders
+        return orders.filter((o) => o.status === ORDER_STATUSES.PENDING);
       case 'assigned':
-        return orders.filter((o) => o.status === 'ASSIGNED');
+        // Strictly show only ASSIGNED orders
+        return orders.filter((o) => o.status === ORDER_STATUSES.ASSIGNED);
       case 'delivering':
-        return orders.filter((o) => o.status === 'DELIVERING');
+        return orders.filter((o) => o.status === ORDER_STATUSES.DELIVERING);
       case 'delivered':
-        return orders.filter((o) => o.status === 'DELIVERED');
+        return orders.filter((o) => o.status === ORDER_STATUSES.DELIVERED);
       default:
         return orders;
     }
@@ -177,19 +218,6 @@ export default function OrderDashboard() {
     }
   };
 
-  const formatFoodItems = (
-    items: ({ name: string; quantity?: number } | string)[]
-  ) => {
-    return items
-      .map((item) => {
-        if (typeof item === 'string') {
-          return item;
-        }
-        return `${item.name} ${item.quantity ? `(×${item.quantity})` : ''}`;
-      })
-      .join(', ');
-  };
-
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
@@ -199,91 +227,79 @@ export default function OrderDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6">
+    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-orange-50 to-white p-6 text-gray-800">
+      {/* Decorative SVG background top left */}
+      <svg
+        className="absolute left-0 top-0 -z-10 opacity-20"
+        width="300"
+        height="300"
+        viewBox="0 0 300 300"
+        fill="none"
+      >
+        <circle cx="150" cy="150" r="120" fill="#ff785b" />
+      </svg>
+      {/* Decorative SVG background bottom right */}
+      <svg
+        className="absolute bottom-0 right-0 -z-10 opacity-10"
+        width="300"
+        height="300"
+        viewBox="0 0 300 300"
+        fill="none"
+      >
+        <rect x="50" y="50" width="200" height="200" rx="100" fill="#ff785b" />
+      </svg>
+      {/* Page Title */}
+      <div className="mb-8 flex flex-col items-center text-center">
+        <span className="mb-2 animate-bounce text-5xl">📋</span>
+        <h1 className="mb-2 text-3xl font-bold text-[#ff785b] drop-shadow">
+          My Orders Dashboard
+        </h1>
+        <p className="text-gray-600">Track and manage all your food orders</p>
+      </div>
       {/* Home Icon Navigation */}
       <HomeIconNavigation />
-
-      <div className="mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-[#ff785b]">
-            📋 My Orders Dashboard
-          </h1>
-          <p className="text-gray-600">Track and manage all your food orders</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="size-3 rounded-full bg-yellow-500"></div>
-              <span>Pending: Waiting for driver</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="size-3 rounded-full bg-blue-500"></div>
-              <span>Assigned: Driver accepted</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="size-3 rounded-full bg-purple-500"></div>
-              <span>Delivering: On the way</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="size-3 rounded-full bg-green-500"></div>
-              <span>Delivered: Completed</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Status Tabs */}
-        <div className="mb-6 flex flex-wrap justify-center gap-2 md:gap-4">
-          {[
-            { key: 'all', label: 'All', count: statusCounts.all },
-            { key: 'pending', label: 'Pending', count: statusCounts.pending },
-            {
-              key: 'assigned',
-              label: 'Assigned',
-              count: statusCounts.assigned,
-            },
-            {
-              key: 'delivering',
-              label: 'Delivering',
-              count: statusCounts.delivering,
-            },
-            {
-              key: 'delivered',
-              label: 'Delivered',
-              count: statusCounts.delivered,
-            },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => {
-                setActiveTab(tab.key as any);
-                // clearNotification(tab.key);
-              }}
-              className={`relative rounded-lg px-4 py-3 font-medium transition-all ${
-                activeTab === tab.key
-                  ? 'bg-[#ff785b] text-white shadow-md'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <span>{tab.label}</span>
-              {tab.count > 0 && (
-                <span
-                  className={`ml-2 rounded-full px-2 py-1 text-xs ${
-                    activeTab === tab.key
-                      ? 'bg-white text-[#ff785b]'
-                      : 'bg-[#ff785b] text-white'
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              )}
-              {/* {newUpdates[tab.key] > 0 && (
-                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                  {newUpdates[tab.key]}
-                </span>
-              )} */}
-            </button>
-          ))}
-        </div>
-
+      {/* Status Tabs */}
+      <div className="mb-6 flex flex-wrap justify-center gap-2 md:gap-4">
+        {[
+          { key: 'all', label: 'All', count: statusCounts.all },
+          { key: 'pending', label: 'Pending', count: statusCounts.pending },
+          { key: 'assigned', label: 'Assigned', count: statusCounts.assigned },
+          {
+            key: 'delivering',
+            label: 'Delivering',
+            count: statusCounts.delivering,
+          },
+          {
+            key: 'delivered',
+            label: 'Delivered',
+            count: statusCounts.delivered,
+          },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as any)}
+            className={`relative rounded-lg px-4 py-3 font-medium transition-all ${
+              activeTab === tab.key
+                ? 'bg-[#ff785b] text-white shadow-md'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <span>{tab.label}</span>
+            {tab.count > 0 && (
+              <span
+                className={`ml-2 rounded-full px-2 py-1 text-xs ${
+                  activeTab === tab.key
+                    ? 'bg-white text-[#ff785b]'
+                    : 'bg-[#ff785b] text-white'
+                }`}
+              >
+                {tab.count}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+      <div className="mx-auto max-w-2xl">
         {/* Orders List */}
         <div className="space-y-4">
           {getFilteredOrders().length === 0 ? (
@@ -303,176 +319,168 @@ export default function OrderDashboard() {
             getFilteredOrders().map((order) => (
               <div
                 key={order.order_id}
-                className="rounded-lg border bg-white p-6 shadow-sm"
+                className="rounded-xl border bg-white p-5 shadow"
               >
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  {/* Order Info */}
-                  <div className="flex-1">
-                    <div className="mb-2 flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        Order #{order.order_id.slice(0, 8)}...
-                      </h3>
-                      <span
-                        className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(order.status)}`}
-                      >
-                        {order.status}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p>
-                        <strong>Restaurant:</strong> {order.eateryName}
-                      </p>
-                      <p>
-                        <strong>Items:</strong>{' '}
-                        {formatFoodItems(order.foodItems)}
-                      </p>
-                      <p>
-                        <strong>Total:</strong>{' '}
-                        {order.total_price?.toLocaleString()}đ
-                      </p>{' '}
-                      <p>
-                        <strong>Order Time:</strong>{' '}
-                        {order.created_at?.toDate?.()?.toLocaleString() ||
-                          'N/A'}
-                      </p>
-                      {order.delivery_man_id && (
-                        <p>
-                          <strong>Driver ID:</strong>{' '}
-                          {order.delivery_man_id.slice(0, 8)}...
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col gap-2 md:flex-row">
-                    {/* Pending Status Actions */}
-                    {order.status === 'PENDING' && (
-                      <>
-                        <button
-                          onClick={() => handleCancelOrder(order.order_id)}
-                          className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-                        >
-                          Cancel Order
-                        </button>
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `/OrderStatus?orderId=${order.order_id}`,
-                              '_blank'
-                            )
-                          }
-                          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                        >
-                          📋 View Details
-                        </button>
-                      </>
-                    )}
-
-                    {/* Assigned Status Actions */}
-                    {order.status === 'ASSIGNED' && (
-                      <>
-                        <button
-                          onClick={() => handleCancelOrder(order.order_id)}
-                          className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-                        >
-                          Cancel Order
-                        </button>
-                        <button
-                          onClick={() => handleChatWithDriver(order.order_id)}
-                          className="rounded bg-[#ff785b] px-4 py-2 text-white hover:bg-[#ff5b3b]"
-                        >
-                          💬 Chat with Driver
-                        </button>
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `/OrderStatus?orderId=${order.order_id}`,
-                              '_blank'
-                            )
-                          }
-                          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                        >
-                          📋 View Details
-                        </button>
-                      </>
-                    )}
-
-                    {/* Delivering Status Actions */}
-                    {order.status === 'DELIVERING' && (
-                      <>
-                        <button
-                          onClick={() => handleChatWithDriver(order.order_id)}
-                          className="rounded bg-[#ff785b] px-4 py-2 text-white hover:bg-[#ff5b3b]"
-                        >
-                          💬 Chat with Driver
-                        </button>
-                        <button
-                          onClick={() => handleViewMap(order.order_id)}
-                          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                        >
-                          🗺️ View on Map
-                        </button>
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `/OrderStatus?orderId=${order.order_id}`,
-                              '_blank'
-                            )
-                          }
-                          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                        >
-                          📋 View Details
-                        </button>
-                      </>
-                    )}
-
-                    {/* Delivered Status Actions */}
-                    {order.status === 'DELIVERED' && (
-                      <>
-                        <button
-                          onClick={() => handleChatWithDriver(order.order_id)}
-                          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                        >
-                          💬 View Chat History
-                        </button>
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `/OrderStatus?orderId=${order.order_id}`,
-                              '_blank'
-                            )
-                          }
-                          className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-                        >
-                          📋 Order Summary
-                        </button>
-                        <button
-                          onClick={() => router.push('/Restaurant_Order')}
-                          className="rounded bg-[#ff785b] px-4 py-2 text-white hover:bg-[#ff5b3b]"
-                        >
-                          🔄 Reorder
-                        </button>
-                      </>
-                    )}
-                  </div>
+                <div className="mb-2 flex items-center gap-3">
+                  <p className="font-semibold text-gray-700">
+                    Order ID: {order.order_id}
+                  </p>
+                  <span
+                    className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(order.status)}`}
+                  >
+                    {order.status}
+                  </span>
                 </div>
+                <div className="mb-2">
+                  <p className="text-sm text-gray-600">
+                    Restaurant:{' '}
+                    <span className="font-semibold text-[#ff785b]">
+                      {order.eateryName}
+                    </span>
+                  </p>
+                  <p className="mb-2 text-sm text-gray-600">
+                    Total:{' '}
+                    <span className="font-semibold text-black">
+                      {order.total_price?.toLocaleString()}đ
+                    </span>
+                  </p>
+                </div>
+                <div className="mb-3">
+                  <p className="mb-1 text-sm font-medium text-[#ff785b]">
+                    Items:
+                  </p>
+                  <ul className="list-disc pl-4 text-sm text-gray-700">
+                    {(order.foodItems ?? []).map((item, idx) => {
+                      const name = typeof item === 'string' ? item : item.name;
+                      const quantity =
+                        typeof item === 'string' ? 1 : item.quantity || 1;
+                      const description =
+                        typeof item === 'object' &&
+                        'description' in item &&
+                        typeof item.description === 'string'
+                          ? item.description
+                          : '';
+                      return (
+                        <li
+                          key={idx}
+                          className="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div>
+                            <span className="font-medium">{name}</span>
+                            {description && (
+                              <span className="ml-2 text-xs italic text-gray-500">
+                                {description}
+                              </span>
+                            )}
+                          </div>
+                          <span className="ml-2 rounded-full bg-[#ff785b] px-2 py-0.5 text-xs text-white">
+                            x{quantity}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+                {/* Driver Info for all statuses except Pending */}
+                {order.delivery_man_id && (
+                  <div className="mb-3">
+                    <p className="text-sm text-gray-600">
+                      Driver Name:{' '}
+                      <span className="font-semibold">
+                        {driverNames[order.delivery_man_id] ||
+                          order.delivery_man_id.slice(0, 8) + '...'}
+                      </span>
+                    </p>
+                    {driverPhones[order.delivery_man_id] && (
+                      <p className="text-sm text-gray-600">
+                        Driver Phone:{' '}
+                        <span className="font-semibold">
+                          {driverPhones[order.delivery_man_id]}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                )}
+                {/* Order Time */}
+                <div className="mb-3">
+                  <p className="text-sm text-gray-600">
+                    Order Time:{' '}
+                    <span className="font-semibold">
+                      {order.created_at?.toDate?.()?.toLocaleString() || 'N/A'}
+                    </span>
+                  </p>
+                </div>
+                {/* Chat Section for ASSIGNED and DELIVERING orders */}
+                {(order.status === ORDER_STATUSES.ASSIGNED ||
+                  order.status === ORDER_STATUSES.DELIVERING) && (
+                  <div className="mt-6">
+                    <OrderChat
+                      orderId={order.order_id}
+                      userId={userId}
+                      userRole="purchaser"
+                      className="mb-4 h-80"
+                    />
+                  </div>
+                )}
+                {/* Cancel Button for Pending, Assigned, Delivering */}
+                {['PENDING', 'ASSIGNED', 'DELIVERING'].includes(
+                  order.status
+                ) && (
+                  <button
+                    onClick={() => handleCancelOrder(order.order_id)}
+                    className="mt-2 w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                  >
+                    Cancel Order
+                  </button>
+                )}
               </div>
             ))
           )}
         </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => router.push('/Restaurant_Order')}
-            className="rounded bg-[#ff785b] px-8 py-3 font-semibold text-white shadow hover:bg-[#ff5b3b]"
-          >
-            🍽️ Place New Order
-          </button>
-        </div>
       </div>
+      {/* Confirmation Dialog */}
+      {showCancelDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="w-80 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-semibold">Confirm Cancellation</h2>
+            <p className="mb-6">Are you sure you want to cancel this order?</p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="rounded bg-gray-300 px-4 py-2 hover:bg-gray-400"
+                onClick={() => {
+                  setShowCancelDialog(false);
+                  setOrderToCancel(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                onClick={confirmCancelOrder}
+              >
+                Ok
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Success Prompt */}
+      {showSuccessPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="w-80 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-semibold">Order Cancelled</h2>
+            <p className="mb-6">You have successfully cancelled the order.</p>
+            <div className="flex justify-end">
+              <button
+                className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                onClick={() => setShowSuccessPrompt(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -37,7 +37,7 @@ export default function UserProfile() {
         setFormData({
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
-          phone: profile.phone || '',
+          phone: profile.phone || profile.phoneNumber || '',
           password: '',
           confirmPassword: '',
           oldPassword: '',
@@ -172,12 +172,10 @@ export default function UserProfile() {
       } catch (err: any) {
         // Inspect and parse error if needed
         let msg = err.message || '';
-        let code = err.code || '';
         let parsedErr = err;
         if (typeof err === 'string') {
           try {
             parsedErr = JSON.parse(err);
-            code = parsedErr.code;
             msg = parsedErr.message;
           } catch {
             // Not JSON, keep as string
@@ -188,7 +186,6 @@ export default function UserProfile() {
           'code' in err &&
           'message' in err
         ) {
-          code = err.code;
           msg = err.message;
         }
         console.log('Error caught in UserProfile:', err, 'Parsed:', parsedErr);
@@ -280,14 +277,14 @@ export default function UserProfile() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="max-w-sm w-full flex flex-col items-center rounded-2xl bg-white p-8 shadow-2xl">
+          <div className="flex w-full max-w-sm flex-col items-center rounded-2xl bg-white p-8 shadow-2xl">
             <div className="mb-4 text-2xl font-bold text-[#16a34a]">
               Profile updated successfully!
             </div>
             <div className="mb-6 text-gray-700">
               Your profile has been updated.
             </div>
-            <div className="w-full flex gap-4">
+            <div className="flex w-full gap-4">
               <Button
                 className="flex-1 bg-[#ff785b] text-white hover:bg-[#ff5b3b]"
                 onClick={() => {
@@ -329,7 +326,7 @@ export default function UserProfile() {
                   setFormData({
                     firstName: profile.firstName || '',
                     lastName: profile.lastName || '',
-                    phone: profile.phone || '',
+                    phone: profile.phone || profile.phoneNumber || '',
                     password: '',
                     confirmPassword: '',
                     oldPassword: '',
@@ -350,9 +347,16 @@ export default function UserProfile() {
             </Button>
           )}
         </div>
+        {/* Show phone number in view mode if present */}
+        {!isEditing && formData.phone && (
+          <div className="mb-4 text-base text-gray-700">
+            <span className="font-semibold">Phone Number:</span>{' '}
+            {formData.phone}
+          </div>
+        )}
         {error && (
           <div
-            className={`mb-4 sticky top-0 z-50 rounded border border-red-400 bg-red-200 px-4 py-3 text-base font-bold text-red-800 shadow animate-pulse animate-shake`}
+            className={`animate-shake sticky top-0 z-50 mb-4 animate-pulse rounded border border-red-400 bg-red-200 px-4 py-3 text-base font-bold text-red-800 shadow`}
             style={{ animationDuration: '0.7s' }}
             role="alert"
             aria-live="assertive"
@@ -424,8 +428,8 @@ export default function UserProfile() {
                   ['oldPassword', 'password', 'confirmPassword'].includes(
                     field.id
                   )
-                    ? `ring-offset-background focus-visible:ring-ring flex py-2 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-12 w-full rounded-[33px] border bg-white px-6 text-sm text-[#333] shadow-sm placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50 transition-all duration-300 border-[#ff785b]${highlight[field.id] ? ' border-2 border-red-500 ring-2 ring-red-300 animate-shake' : ''} pr-12`
-                    : `w-full h-[45px] rounded-[30px] border px-5 text-sm transition-all duration-300${isEditing ? ' border-[#ff785b]' : ' border-gray-300 bg-gray-100'} text-[#444] placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50${highlight[field.id] ? ' border-2 border-red-500 ring-2 ring-red-300 animate-shake' : ''}`
+                    ? `ring-offset-background focus-visible:ring-ring flex h-12 w-full rounded-[33px] border border-[#ff785b] bg-white px-6 py-2 text-sm text-[#333] shadow-sm transition-all duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50${highlight[field.id] ? ' animate-shake border-2 border-red-500 ring-2 ring-red-300' : ''} pr-12`
+                    : `h-[45px] w-full rounded-[30px] border px-5 text-sm transition-all duration-300${isEditing ? ' border-[#ff785b]' : ' border-gray-300 bg-gray-100'} text-[#444] placeholder:text-[#aaa] focus:ring-2 focus:ring-[#ff785b]/50${highlight[field.id] ? ' animate-shake border-2 border-red-500 ring-2 ring-red-300' : ''}`
                 }
                 autoComplete={
                   field.id === 'oldPassword' ? 'current-password' : 'off'
@@ -445,7 +449,7 @@ export default function UserProfile() {
                 field.id
               ) && (
                 <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2 mt-3.5 z-10"
+                  className="absolute right-4 top-1/2 z-10 mt-3.5 -translate-y-1/2"
                   onClick={() => handleTogglePassword(field.id)}
                   tabIndex={0}
                   role="button"

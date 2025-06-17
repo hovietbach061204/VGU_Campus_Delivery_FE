@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Send } from 'lucide-react';
 import { useOrderChat } from '@/hooks/useOrderChat';
 
@@ -25,11 +25,6 @@ export default function OrderChat({
   const [input, setInput] = useState('');
   const [isComposing, setIsComposing] = useState(false); // Track IME composition
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   const handleSend = () => {
     if (input.trim() && !isComposing) {
@@ -82,15 +77,41 @@ export default function OrderChat({
       className={`flex flex-col rounded-lg border bg-white shadow-lg ${className}`}
     >
       {/* Header */}
-      <div className="border-b bg-[#ff785b] p-6 text-white">
-        <h3 className="text-xl font-semibold">
-          💬 Chat with {userRole === 'purchaser' ? 'Deliveryman' : 'Customer'}
-        </h3>
-        <p className="text-sm opacity-90">Order: {orderId}</p>
+      <div
+        className="flex cursor-pointer items-center justify-between border-b bg-[#ff785b] p-6 text-white hover:bg-[#ff5b3b]"
+        onClick={() => {
+          window.open(`/Chat?orderId=${orderId}&role=${userRole}`, '_blank');
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            window.open(`/Chat?orderId=${orderId}&role=${userRole}`, '_blank');
+          }
+        }}
+      >
+        <div>
+          <h3 className="text-xl font-semibold">
+            💬 Chat with {userRole === 'purchaser' ? 'Deliveryman' : 'Customer'}
+          </h3>
+          <p className="text-sm opacity-90">Order: {orderId}</p>
+        </div>
+        <button
+          className="ml-4 rounded bg-white px-3 py-2 font-semibold text-[#ff785b] shadow hover:bg-orange-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(`/Map/OrderTrackingPage?orderId=${orderId}`, '_blank');
+          }}
+        >
+          🗺️ Map
+        </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 space-y-4 overflow-y-auto p-6">
+      <div
+        className="max-h-80 flex-1 space-y-4 overflow-y-auto p-6"
+        style={{ minHeight: '0' }}
+      >
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">

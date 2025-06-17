@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import { Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -12,10 +11,8 @@ interface HomeIconNavigationProps {
 export default function HomeIconNavigation({
   className = '',
 }: HomeIconNavigationProps) {
-  const router = useRouter();
-
   const handleHomeClick = () => {
-    router.push('/');
+    window.location.href = '/';
   };
 
   return (
