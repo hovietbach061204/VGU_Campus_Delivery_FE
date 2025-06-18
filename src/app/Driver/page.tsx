@@ -366,7 +366,7 @@ export default function DriverOrderListener() {
       case 'delivered':
         return o.status === 'DELIVERED';
       default:
-        return true; // For 'all'
+        return true;
     }
   });
 

@@ -3,6 +3,7 @@ import { PropsWithChildren } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { StagewiseToolbar } from '@stagewise/toolbar-next';
 import { ReactPlugin } from '@stagewise-plugins/react';
+import AppInitializer from './AppInitializer';
 
 export const metadata = {
   title: 'Your App',
@@ -13,6 +14,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
   return (
     <html lang="en">
       <body>
+        <AppInitializer />
         <main className="grow">{children}</main>
         <Toaster />
         <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
