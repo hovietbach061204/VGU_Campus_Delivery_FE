@@ -16,20 +16,31 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { User } from 'lucide-react';
 
 export const NavigationHeader = (): React.JSX.Element => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
-  const [userRole, setUserRole] = useState<string | null>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const promptTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Check for forceHeaderRefresh flag
+    if (
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem('forceHeaderRefresh')
+    ) {
+      sessionStorage.removeItem('forceHeaderRefresh');
+      const token = localStorage.getItem('access_token');
+      setIsLoggedIn(!!token);
+      setIsAdmin(localStorage.getItem('isAdmin') === 'true');
+    }
+
     const token = localStorage.getItem('access_token');
-    const role = localStorage.getItem('userRole');
     setIsLoggedIn(!!token);
-    setUserRole(role);
+    setIsAdmin(localStorage.getItem('isAdmin') === 'true');
     // No redirect here: just set state based on token presence
     // This allows homepage to show correct buttons based on login state
 
@@ -80,7 +91,6 @@ export const NavigationHeader = (): React.JSX.Element => {
     localStorage.removeItem('user_id');
     localStorage.removeItem('userRole');
     setIsLoggedIn(false);
-    setUserRole(null);
     // Redirect to homepage instead of SignIn
     router.push('/');
   };
@@ -96,7 +106,7 @@ export const NavigationHeader = (): React.JSX.Element => {
   return (
     <header className="w-full rounded-b-xl bg-[#ff785b] p-4 shadow-md">
       {showAuthPrompt && (
-        <div className="fixed left-0 top-0 z-50 w-full bg-yellow-200 py-4 text-center text-lg font-semibold text-[#b45309] shadow-md animate-pulse">
+        <div className="fixed left-0 top-0 z-50 w-full animate-pulse bg-yellow-200 py-4 text-center text-lg font-semibold text-[#b45309] shadow-md">
           Please sign in or sign up first to use this feature!
         </div>
       )}
@@ -128,31 +138,129 @@ export const NavigationHeader = (): React.JSX.Element => {
 
         <div className="flex items-center gap-3">
           {isLoggedIn && (
-            <button
-              onClick={handleBellClick}
-              className="relative rounded-full border border-white bg-transparent p-2 text-white transition-colors hover:bg-white/20"
-              title="View Orders"
-            >
-              <svg
-                className="size-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
+                    title="Profile"
+                  >
+                    <User className="size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="rounded-md bg-white text-black shadow-lg"
+                >
+                  {isAdmin ? (
+                    <>
+                      <DropdownMenuItem>
+                        <Link href="/AdminProfile" className="block w-full">
+                          🛡️ Admin Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/MenuEditing" className="block w-full">
+                          📝 Edit Menu
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/UserProfile" className="block w-full">
+                          👤 User Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/OrderDashboard" className="block w-full">
+                          📋 Ordering History
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link
+                          href="/DeliveringProfile"
+                          className="block w-full"
+                        >
+                          📦 Delivering History
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/Restaurant_Order" className="block w-full">
+                          🍽️ Place Order
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/Driver" className="block w-full">
+                          🚚 Delivering Orders
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem>
+                        <Link href="/UserProfile" className="block w-full">
+                          👤 User Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/OrderDashboard" className="block w-full">
+                          📋 Ordering History
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link
+                          href="/DeliveringProfile"
+                          className="block w-full"
+                        >
+                          📦 Delivering History
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/Restaurant_Order" className="block w-full">
+                          🍽️ Place Order
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/Driver" className="block w-full">
+                          🚚 Delivering Orders
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <button
+                onClick={handleBellClick}
+                className="relative rounded-full border border-white bg-transparent p-2 text-white transition-colors hover:bg-white/20"
+                title="View Orders"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
-              {newOrdersCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-                  {newOrdersCount > 9 ? '9+' : newOrdersCount}
-                </span>
-              )}
-            </button>
+                <svg
+                  className="size-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                {newOrdersCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                    {newOrdersCount > 9 ? '9+' : newOrdersCount}
+                  </span>
+                )}
+              </button>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
+              >
+                Logout
+              </Button>
+            </>
           )}
 
           {!isLoggedIn ? (
@@ -160,9 +268,9 @@ export const NavigationHeader = (): React.JSX.Element => {
               <Link href="/SignIn">
                 <Button
                   variant="outline"
-                  className={`rounded-full border-white bg-transparent text-white hover:bg-white/20 transition-all duration-300 ${
+                  className={`rounded-full border-white bg-transparent text-white transition-all duration-300 hover:bg-white/20 ${
                     showAuthPrompt
-                      ? 'ring-4 ring-yellow-400 scale-110 font-bold text-[#ff785b] bg-white'
+                      ? 'scale-110 bg-white font-bold text-[#ff785b] ring-4 ring-yellow-400'
                       : ''
                   }`}
                   onClick={() => setShowAuthPrompt(false)}
@@ -173,9 +281,9 @@ export const NavigationHeader = (): React.JSX.Element => {
               <Link href="/Register">
                 <Button
                   variant="outline"
-                  className={`rounded-full border-white bg-transparent text-white hover:bg-white/20 transition-all duration-300 ${
+                  className={`rounded-full border-white bg-transparent text-white transition-all duration-300 hover:bg-white/20 ${
                     showAuthPrompt
-                      ? 'ring-4 ring-yellow-400 scale-110 font-bold text-[#ff785b] bg-white'
+                      ? 'scale-110 bg-white font-bold text-[#ff785b] ring-4 ring-yellow-400'
                       : ''
                   }`}
                   onClick={() => setShowAuthPrompt(false)}
@@ -184,58 +292,7 @@ export const NavigationHeader = (): React.JSX.Element => {
                 </Button>
               </Link>
             </div>
-          ) : (
-            <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
-                  >
-                    Profile
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="rounded-md bg-white text-black shadow-lg"
-                >
-                  <DropdownMenuItem>
-                    <Link href="/UserProfile" className="block w-full">
-                      👤 User Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/OrderDashboard" className="block w-full">
-                      📋 Ordering History
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/DeliveringProfile" className="block w-full">
-                      📦 Delivering History
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/Restaurant_Order" className="block w-full">
-                      🍽️ Place Order
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/Driver" className="block w-full">
-                      🚚 Delivering Orders
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="rounded-full border-white bg-transparent text-white hover:bg-white/20"
-              >
-                Logout
-              </Button>
-            </>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

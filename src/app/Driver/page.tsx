@@ -67,7 +67,6 @@ export default function DriverOrderListener() {
     message: string;
     onConfirm: () => void;
   }>(null);
-  const allOrders = [...availableOrders, ...orders];
 
   // Preload driver location when component mounts
   useEffect(() => {
@@ -122,6 +121,7 @@ export default function DriverOrderListener() {
 
   // Update statusCounts in real-time
   useEffect(() => {
+    const allOrders = [...availableOrders, ...orders];
     const all = allOrders.length;
     const pending = allOrders.filter((o) => o.status === 'PENDING').length;
     const assigned = allOrders.filter((o) => o.status === 'ASSIGNED').length;
@@ -130,7 +130,7 @@ export default function DriverOrderListener() {
     ).length;
     const delivered = allOrders.filter((o) => o.status === 'DELIVERED').length;
     setStatusCounts({ all, pending, assigned, delivering, delivered });
-  }, [allOrders]);
+  }, [orders, availableOrders]);
 
   // Enable live location tracking for the first active delivery order (if any)
   const activeDeliveryOrderId =

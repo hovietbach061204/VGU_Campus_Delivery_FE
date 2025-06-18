@@ -271,43 +271,48 @@ export default function UserProfile() {
     );
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#fff8f5] px-4 py-12 sm:px-6 lg:px-8">
-      {/* Home Icon Navigation */}
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-[#ffe5dc] via-[#fff8f6] to-[#ffe5dc] px-4 py-12">
+      {/* Decorative Bubbles */}
+      <div className="animate-float-slow absolute -top-10 left-0 size-40 rounded-full bg-[#ffbfae] opacity-30 blur-2xl" />
+      <div className="animate-float absolute bottom-0 right-0 size-56 rounded-full bg-[#ff785b] opacity-20 blur-3xl" />
+      <div className="animate-float-reverse absolute left-0 top-1/2 size-24 rounded-full bg-[#ffe5dc] opacity-40 blur-xl" />
+      <div className="animate-float absolute right-1/3 top-1/4 size-32 rounded-full bg-[#fa9f3d] opacity-20 blur-2xl" />
+      <div className="animate-float absolute bottom-1/4 left-1/3 size-24 rounded-full bg-[#9757d7] opacity-10 blur-2xl" />
       <HomeIconNavigation />
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="flex w-full max-w-sm flex-col items-center rounded-2xl bg-white p-8 shadow-2xl">
-            <div className="mb-4 text-2xl font-bold text-[#16a34a]">
-              Profile updated successfully!
-            </div>
-            <div className="mb-6 text-gray-700">
-              Your profile has been updated.
-            </div>
-            <div className="flex w-full gap-4">
-              <Button
-                className="flex-1 bg-[#ff785b] text-white hover:bg-[#ff5b3b]"
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  setIsEditing(true); // Stay in edit mode
-                }}
-              >
-                Continue editing
-              </Button>
-              <Button
-                className="flex-1 bg-gray-200 text-gray-800 hover:bg-gray-300"
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  router.push('/');
-                }}
-              >
-                Back to home page
-              </Button>
+      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-[#ffbfae] bg-white/90 p-8 shadow-2xl backdrop-blur-md">
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="flex w-full max-w-sm flex-col items-center rounded-2xl bg-white p-8 shadow-2xl">
+              <div className="mb-4 text-2xl font-bold text-[#16a34a]">
+                Profile updated successfully!
+              </div>
+              <div className="mb-6 text-gray-700">
+                Your profile has been updated.
+              </div>
+              <div className="flex w-full gap-4">
+                <Button
+                  className="flex-1 bg-[#ff785b] text-white hover:bg-[#ff5b3b]"
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setIsEditing(true); // Stay in edit mode
+                  }}
+                >
+                  Continue editing
+                </Button>
+                <Button
+                  className="flex-1 bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    router.push('/');
+                  }}
+                >
+                  Back to home page
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg sm:p-8">
+        )}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-[#ff785b] [font-family:'Red_Rose-Bold',Helvetica]">
             Profile
@@ -347,13 +352,6 @@ export default function UserProfile() {
             </Button>
           )}
         </div>
-        {/* Show phone number in view mode if present */}
-        {!isEditing && formData.phone && (
-          <div className="mb-4 text-base text-gray-700">
-            <span className="font-semibold">Phone Number:</span>{' '}
-            {formData.phone}
-          </div>
-        )}
         {error && (
           <div
             className={`animate-shake sticky top-0 z-50 mb-4 animate-pulse rounded border border-red-400 bg-red-200 px-4 py-3 text-base font-bold text-red-800 shadow`}

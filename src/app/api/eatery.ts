@@ -8,7 +8,7 @@ export interface FoodItem {
 
 export interface EateryPayload {
   name: string;
-  address: string;
+  location: string;
   contactNumber: string;
   foodItems: FoodItem[];
 }

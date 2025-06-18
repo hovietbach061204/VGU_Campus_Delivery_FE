@@ -14,7 +14,7 @@ export async function loadFormattedEateries(): Promise<Restaurant[]> {
   return eateries.map((eatery: any, idx: number) => ({
     id: idx + 1,
     name: eatery.name,
-    address: eatery.address,
+    location: eatery.location, // Changed from address to location
     contactNumber: eatery.contactNumber,
     dishes: eatery.foodItemMenuResponses || [],
   }));

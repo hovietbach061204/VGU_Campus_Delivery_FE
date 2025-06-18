@@ -100,7 +100,10 @@ export default function OrderChat({
           className="ml-4 rounded bg-white px-3 py-2 font-semibold text-[#ff785b] shadow hover:bg-orange-100"
           onClick={(e) => {
             e.stopPropagation();
-            window.open(`/Map/OrderTrackingPage?orderId=${orderId}`, '_blank');
+            window.open(
+              `/Map/OrderTrackingPage?orderId=${orderId}&role=${userRole}`,
+              '_blank'
+            );
           }}
         >
           🗺️ Map

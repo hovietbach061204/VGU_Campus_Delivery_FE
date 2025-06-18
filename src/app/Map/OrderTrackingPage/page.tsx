@@ -33,7 +33,8 @@ interface LatLng {
 
 export default function OrderTrackingPage() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const orderId = searchParams?.get('orderId');
+  const role = searchParams?.get('role');
   const [purchaser, setPurchaser] = useState<LatLng | null>(null);
   const [deliveryman, setDeliveryman] = useState<LatLng | null>(null);
   const [route, setRoute] = useState<LatLng[]>([]);
@@ -173,7 +174,10 @@ export default function OrderTrackingPage() {
     };
   }
 
-  const center = purchaser || deliveryman || { lat: 0, lng: 0 };
+  // Center map based on role
+  let center = purchaser || deliveryman || { lat: 0, lng: 0 };
+  if (role === 'deliveryman' && deliveryman) center = deliveryman;
+  if (role === 'purchaser' && purchaser) center = purchaser;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#ffe5dc] to-[#fff8f6] p-4">
@@ -198,7 +202,9 @@ export default function OrderTrackingPage() {
             {purchaserMarker && (
               <Marker position={purchaserMarker}>
                 <Popup>
-                  Purchaser Location
+                  {role === 'purchaser'
+                    ? 'Your location'
+                    : 'Purchaser location'}
                   <br />
                   Lat: {purchaserMarker.lat.toFixed(6)}
                   <br />
@@ -210,7 +216,9 @@ export default function OrderTrackingPage() {
             {deliverymanMarker && (
               <Marker position={deliverymanMarker}>
                 <Popup>
-                  Deliveryman Location
+                  {role === 'deliveryman'
+                    ? 'Your location'
+                    : 'Deliveryman location'}
                   <br />
                   Lat: {deliverymanMarker.lat.toFixed(6)}
                   <br />

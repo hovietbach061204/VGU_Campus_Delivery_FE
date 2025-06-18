@@ -12,7 +12,16 @@ export default function HomeIconNavigation({
   className = '',
 }: HomeIconNavigationProps) {
   const handleHomeClick = () => {
-    window.location.href = '/';
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        // Set a flag in sessionStorage to force NavigationHeader to re-check token
+        sessionStorage.setItem('forceHeaderRefresh', '1');
+        window.location.href = '/';
+      } else {
+        window.location.href = '/';
+      }
+    }
   };
 
   return (

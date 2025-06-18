@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createOrder } from '../api/order';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ensureAuthenticated } from '@/lib/auth';
 import { loadFormattedEateries } from '@/lib/utils';
 import { db } from '@/lib/firebase';
@@ -18,6 +18,7 @@ import { useLiveLocation } from '@/hooks/useLiveLocation';
 import OrderSuccessModal from '@/components/OrderSuccessModal';
 import HomeIconNavigation from '@/components/HomeIconNavigation';
 import ItemCustomizationModal from '@/components/ItemCustomizationModal';
+import SizeSelectModal from '@/components/SizeSelectModal';
 import {
   diagnoseLocationAccess,
   getLocationErrorMessage,
@@ -40,6 +41,8 @@ interface Restaurant {
     price: number;
     description: string;
   }>;
+  contactNumber?: string; // Added optional contact number field
+  location?: string; // Changed from address to location
 }
 
 // Fixed campus locations for VGU with attractive icons
@@ -111,7 +114,17 @@ export default function RestaurantOrderPage() {
     item: { name: string; price: number; description: string };
     category: string;
   } | null>(null);
+  const [showSizeModal, setShowSizeModal] = useState(false);
+  const [sizeSelectItem, setSizeSelectItem] = useState<{
+    item: { name: string; price: number; description: string };
+    category: string;
+  } | null>(null);
+  const [filteredMenu, setFilteredMenu] = useState<Restaurant[] | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [notFound, setNotFound] = useState(false); // Add state for not found
+  const [highlightShowAll, setHighlightShowAll] = useState(false); // Add state for highlight effect
   const MAX_LOCATION_RETRIES = 3;
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const loadData = async () => {
@@ -126,6 +139,55 @@ export default function RestaurantOrderPage() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    const eatery = searchParams ? searchParams.get('eatery') : null;
+    if (eatery && !showAll) {
+      // Always send uppercase for case-insensitive search
+      const eateryQuery = eatery.trim().toUpperCase();
+      fetch(
+        `http://localhost:8080/identity/eateries/${encodeURIComponent(eateryQuery)}`
+      )
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.result && data.result.name) {
+            const result = data.result;
+            const dishes = Array.isArray(result.foodItemMenuResponses)
+              ? result.foodItemMenuResponses.map((dish: any) => ({
+                  name: dish.name,
+                  price: dish.price,
+                  description: dish.description || '',
+                }))
+              : [];
+            setFilteredMenu([
+              {
+                name: result.name,
+                dishes,
+                contactNumber: result.contactNumber,
+                location: result.location,
+              },
+            ]);
+            setNotFound(false);
+            setHighlightShowAll(false);
+          } else {
+            setFilteredMenu([]);
+            setNotFound(true);
+            setHighlightShowAll(true);
+            setTimeout(() => setHighlightShowAll(false), 2000);
+          }
+        })
+        .catch(() => {
+          setFilteredMenu([]);
+          setNotFound(true);
+          setHighlightShowAll(true);
+          setTimeout(() => setHighlightShowAll(false), 2000);
+        });
+    } else {
+      setFilteredMenu(null); // Show all
+      setNotFound(false);
+      setHighlightShowAll(false);
+    }
+  }, [searchParams, showAll]);
 
   const addToOrder = (
     item: { name: string; price: number; description: string },
@@ -163,7 +225,10 @@ export default function RestaurantOrderPage() {
               portion,
               customization,
               category,
-              description: item.description,
+              description:
+                customization && customization.trim() !== ''
+                  ? customization
+                  : 'No description',
             },
           ];
         }
@@ -455,9 +520,33 @@ export default function RestaurantOrderPage() {
     <main className="min-h-screen bg-white p-4 text-gray-800">
       {/* Home Icon Navigation */}
       <HomeIconNavigation />
-
-      <header className="rounded bg-[#ff785b] p-4 text-xl font-bold text-white shadow">
-        Choose Your Food
+      {/* Show All button if filtered */}
+      {filteredMenu && (
+        <div className="mb-4 flex justify-start">
+          {' '}
+          <button
+            className={`rounded bg-blue-500 px-4 py-2 text-white transition-all duration-500 hover:bg-blue-600 ${highlightShowAll ? 'animate-pulse ring-4 ring-blue-300' : ''}`}
+            onClick={() => setShowAll(true)}
+          >
+            Show All
+          </button>
+        </div>
+      )}
+      {/* Not found prompt */}
+      {notFound && (
+        <div className="animate-shake mb-4 rounded border border-red-400 bg-red-50 p-4 text-center font-semibold text-red-700">
+          Cannot find any restaurant with that name.
+          <br />
+          Please check your spelling
+          <br />
+          or press <span className="underline">Show All</span> to see all
+          restaurants.
+        </div>
+      )}
+      <header className="rounded bg-[#ff785b] p-4 text-center text-xl font-bold text-white shadow">
+        {filteredMenu && filteredMenu.length === 1 && filteredMenu[0].name
+          ? filteredMenu[0].name // Always show backend name
+          : 'Choose Your Food'}
       </header>
       <p className="mt-2 text-center text-sm font-medium text-red-500">
         Note: You can only order from one restaurant at a time.
@@ -528,7 +617,7 @@ export default function RestaurantOrderPage() {
 
       <div className="mt-4 flex flex-col gap-4 md:flex-row">
         <section className="flex-1 space-y-6">
-          {menu.map((restaurant) => {
+          {(filteredMenu !== null ? filteredMenu : menu).map((restaurant) => {
             const isRestaurantDisabled = !!(
               currentCategory && currentCategory !== restaurant.name
             );
@@ -551,6 +640,17 @@ export default function RestaurantOrderPage() {
                     <span className="ml-2 text-xs font-normal text-gray-500">
                       (Disabled - you can only order from one restaurant)
                     </span>
+                  )}
+                  {/* Display phone number below the eatery name */}
+                  {restaurant.contactNumber && (
+                    <div className="mt-1 text-xs font-normal text-gray-600">
+                      📞 {restaurant.contactNumber}
+                    </div>
+                  )}
+                  {restaurant.location && (
+                    <div className="mt-1 text-xs font-normal text-gray-500">
+                      📍 {restaurant.location}
+                    </div>
                   )}
                 </h3>
                 {restaurant.dishes.map((item) => {
@@ -586,7 +686,13 @@ export default function RestaurantOrderPage() {
                           Add
                         </button>
                         <button
-                          onClick={() => addToOrder(item, restaurant.name)}
+                          onClick={() => {
+                            setSizeSelectItem({
+                              item,
+                              category: restaurant.name,
+                            });
+                            setShowSizeModal(true);
+                          }}
                           className={`flex size-6 items-center justify-center rounded-full text-white transition-colors ${
                             isRestaurantDisabled
                               ? 'cursor-not-allowed bg-gray-400'
@@ -697,6 +803,48 @@ export default function RestaurantOrderPage() {
         onConfirm={handleCustomizationConfirm}
         itemName={selectedItem?.item.name || ''}
         itemDescription={selectedItem?.item.description || ''}
+      />
+
+      {/* Size Select Modal */}
+      <SizeSelectModal
+        open={showSizeModal}
+        onClose={() => {
+          setShowSizeModal(false);
+          setSizeSelectItem(null);
+        }}
+        onConfirm={(size) => {
+          if (sizeSelectItem) {
+            setOrder((prev) => {
+              const existing = prev.find(
+                (i) =>
+                  i.name === sizeSelectItem.item.name &&
+                  i.portion === size &&
+                  i.description === 'No description'
+              );
+              if (existing) {
+                return prev.map((i) =>
+                  i === existing ? { ...i, qty: i.qty + 1 } : i
+                );
+              } else {
+                return [
+                  ...prev,
+                  {
+                    name: sizeSelectItem.item.name,
+                    qty: 1,
+                    price: sizeSelectItem.item.price,
+                    portion: size,
+                    customization: '',
+                    category: sizeSelectItem.category,
+                    description: 'No description',
+                  },
+                ];
+              }
+            });
+          }
+          setShowSizeModal(false);
+          setSizeSelectItem(null);
+        }}
+        description={sizeSelectItem?.item.description}
       />
     </main>
   );

@@ -1,13 +1,13 @@
-import React, { JSX } from 'react';
-import Image from 'next/image';
+'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import React, { useState, JSX } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/input';
 import { ExploreButton } from './ExploreButton';
 
 export default function CallToActionSection(): JSX.Element {
+  const [eateryName, setEateryName] = useState('');
   const stats = [
     { value: '35+', label: 'Order per minute' },
     { value: '10x', label: 'Faster delivery' },
@@ -28,11 +28,11 @@ export default function CallToActionSection(): JSX.Element {
             <div className="mb-10 flex flex-col gap-4 overflow-hidden rounded-[10px] bg-[#9757d71a] sm:flex-row sm:items-center">
               <Input
                 className="h-[60px] flex-1 border-0 bg-transparent px-4 text-base text-[#777e90] sm:h-[70px]"
-                placeholder="Enter location address"
-                defaultValue=""
+                placeholder="Enter eatery name"
+                value={eateryName}
+                onChange={(e) => setEateryName(e.target.value)}
               />
-              {/* Use a wrapper for client-side logic to avoid passing onClick directly to a server component */}
-              <ExploreButton />
+              <ExploreButton eateryName={eateryName} />
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:gap-8">
