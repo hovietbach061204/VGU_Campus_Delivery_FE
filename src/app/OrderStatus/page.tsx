@@ -1,15 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrderRealtime } from '@/hooks/useOrderRealTime';
 import OrderChat from '@/components/OrderChat';
 import HomeIconNavigation from '@/components/HomeIconNavigation';
 
-export default function OrderStatus() {
+function OrderStatusInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams?.get('orderId') ?? '';
-
   const order = useOrderRealtime(orderId);
 
   const handleNewOrder = () => {
@@ -118,5 +118,19 @@ export default function OrderStatus() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function OrderStatus() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center">
+          <p className="text-gray-500">Loading order status...</p>
+        </main>
+      }
+    >
+      <OrderStatusInner />
+    </Suspense>
   );
 }
