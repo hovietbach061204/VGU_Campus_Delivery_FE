@@ -8,9 +8,9 @@ import HomeIconNavigation from '@/components/HomeIconNavigation';
 export default function OrderStatus() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const orderId = searchParams?.get('orderId') ?? '';
 
-  const order = useOrderRealtime(orderId ?? '');
+  const order = useOrderRealtime(orderId);
 
   const handleNewOrder = () => {
     router.push('/Restaurant_Order');

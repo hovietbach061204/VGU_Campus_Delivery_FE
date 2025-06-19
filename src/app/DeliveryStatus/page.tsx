@@ -7,9 +7,9 @@ import OrderChat from '@/components/OrderChat';
 export default function DeliveryStatus() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const orderId = searchParams?.get('orderId') ?? '';
 
-  const order = useOrderRealtime(orderId ?? '');
+  const order = useOrderRealtime(orderId);
 
   const handleBackToOrders = () => {
     router.push('/Driver');
