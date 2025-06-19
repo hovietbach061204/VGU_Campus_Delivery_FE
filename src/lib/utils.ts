@@ -5,6 +5,20 @@ import { fetchAllEateries } from '@/app/api/eatery';
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
+// Local Restaurant type for utils
+export interface Restaurant {
+  id: number;
+  name: string;
+  location: string;
+  contactNumber: string;
+  dishes: Array<{
+    id: number;
+    name: string;
+    price: number;
+    description: string;
+  }>;
+}
+
 export async function loadFormattedEateries(): Promise<Restaurant[]> {
   const auth = ensureAuthenticated();
   const token = auth.token;
@@ -16,6 +30,13 @@ export async function loadFormattedEateries(): Promise<Restaurant[]> {
     name: eatery.name,
     location: eatery.location, // Changed from address to location
     contactNumber: eatery.contactNumber,
-    dishes: eatery.foodItemMenuResponses || [],
+    dishes: (eatery.foodItemMenuResponses || []).map(
+      (dish: any, dishIdx: number) => ({
+        id: dish.id !== undefined ? dish.id : dishIdx + 1,
+        name: dish.name,
+        price: dish.price,
+        description: dish.description,
+      })
+    ),
   }));
 }

@@ -29,9 +29,11 @@ export default function ChatPage() {
   useEffect(() => {
     const fetchOrderAndSetUserId = async () => {
       // Get parameters from URL or localStorage
-      const orderIdParam = searchParams.get('orderId');
-      const roleParam = searchParams.get('role') as 'purchaser' | 'deliveryman';
-      const userIdParam = searchParams.get('userId');
+      const orderIdParam = searchParams?.get('orderId');
+      const roleParam = searchParams?.get('role') as
+        | 'purchaser'
+        | 'deliveryman';
+      const userIdParam = searchParams?.get('userId');
       const userIdFromStorage = localStorage.getItem('userId');
 
       if (orderIdParam) setOrderId(orderIdParam);

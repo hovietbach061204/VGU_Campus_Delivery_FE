@@ -143,28 +143,24 @@ export default function RestaurantOrderPage() {
   useEffect(() => {
     const eatery = searchParams ? searchParams.get('eatery') : null;
     if (eatery && !showAll) {
-      // Always send uppercase for case-insensitive search
-      const eateryQuery = eatery.trim().toUpperCase();
-      fetch(
-        `http://localhost:8080/identity/eateries/${encodeURIComponent(eateryQuery)}`
-      )
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data && data.result && data.result.name) {
-            const result = data.result;
-            const dishes = Array.isArray(result.foodItemMenuResponses)
-              ? result.foodItemMenuResponses.map((dish: any) => ({
+      // Case-insensitive search on frontend
+      const eateryQuery = eatery.trim().toLowerCase();
+      loadFormattedEateries()
+        .then((allEateries) => {
+          const found = allEateries.find(
+            (e) => e.name.trim().toLowerCase() === eateryQuery
+          );
+          if (found) {
+            setFilteredMenu([
+              {
+                name: found.name,
+                dishes: found.dishes.map((dish: any) => ({
                   name: dish.name,
                   price: dish.price,
                   description: dish.description || '',
-                }))
-              : [];
-            setFilteredMenu([
-              {
-                name: result.name,
-                dishes,
-                contactNumber: result.contactNumber,
-                location: result.location,
+                })),
+                contactNumber: found.contactNumber,
+                location: found.location,
               },
             ]);
             setNotFound(false);

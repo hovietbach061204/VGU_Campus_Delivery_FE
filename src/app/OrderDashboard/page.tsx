@@ -422,10 +422,8 @@ export default function OrderDashboard() {
                     />
                   </div>
                 )}
-                {/* Cancel Button for Pending, Assigned, Delivering */}
-                {['PENDING', 'ASSIGNED', 'DELIVERING'].includes(
-                  order.status
-                ) && (
+                {/* Cancel Button for Pending, Assigned */}
+                {['PENDING', 'ASSIGNED'].includes(order.status) && (
                   <button
                     onClick={() => handleCancelOrder(order.order_id)}
                     className="mt-2 w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
