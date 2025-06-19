@@ -17,21 +17,18 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icon in Leaflet
-if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: '/marker-icon-2x.png',
-    iconUrl: '/marker-icon.png',
-    shadowUrl: '/marker-shadow.png',
-  });
-}
-
-interface LatLng {
-  lat: number;
-  lng: number;
-}
-
 export default function OrderTrackingPage() {
+  // Fix for default marker icon in Leaflet (must be in useEffect for SSR safety)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: '/marker-icon-2x.png',
+        iconUrl: '/marker-icon.png',
+        shadowUrl: '/marker-shadow.png',
+      });
+    }
+  }, []);
+
   const searchParams = useSearchParams();
   const orderId = searchParams?.get('orderId');
   const role = searchParams?.get('role');
