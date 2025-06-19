@@ -1,6 +1,6 @@
 'use client';
 
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -8,10 +8,9 @@ import { Button } from '@/components/ui/button';
 
 export default function HeroSection(): JSX.Element {
   const router = useRouter();
-  const [isPrompted, setIsPrompted] = useState(false);
 
   useEffect(() => {
-    const handler = () => setIsPrompted(false);
+    const handler = () => {};
     window.addEventListener('clear-auth-prompt', handler);
     return () => window.removeEventListener('clear-auth-prompt', handler);
   }, []);
@@ -24,7 +23,6 @@ export default function HeroSection(): JSX.Element {
     if (!token) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       window.dispatchEvent(new CustomEvent('show-auth-prompt'));
-      setIsPrompted(true);
       return;
     }
     router.push('/Driver');

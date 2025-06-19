@@ -247,7 +247,7 @@ export const getOptimalLocationSettings = async (): Promise<{
       const battery = await (navigator as any).getBattery();
       batteryLevel = battery.level;
     }
-  } catch (err) {
+  } catch {
     console.warn('Could not determine battery level');
   }
 
@@ -270,7 +270,7 @@ export const getOptimalLocationSettings = async (): Promise<{
         connection?.effectiveType === '2g' ||
         connection?.rtt > 1000;
     }
-  } catch (err) {
+  } catch {
     console.warn('Could not determine network conditions');
   }
 

@@ -32,7 +32,7 @@ export default function QuantityValidationNotification({
 
   return (
     <div
-      className={`fixed left-1/2 top-4 z-50 flex -translate-x-1/2 transform items-center space-x-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 shadow-lg transition-all duration-300 ${
+      className={`fixed left-1/2 top-4 z-50 flex -translate-x-1/2 items-center space-x-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 shadow-lg transition-all duration-300 ${
         isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
       }`}
     >

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { ShoppingCartIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -67,10 +67,8 @@ export default function MenuSection() {
     },
   ];
 
-  const [isPrompted, setIsPrompted] = useState(false);
-
   useEffect(() => {
-    const handler = () => setIsPrompted(false);
+    const handler = () => {};
     window.addEventListener('clear-auth-prompt', handler);
     return () => window.removeEventListener('clear-auth-prompt', handler);
   }, []);
@@ -84,7 +82,6 @@ export default function MenuSection() {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       window.dispatchEvent(new CustomEvent('show-auth-prompt'));
-      setIsPrompted(true);
       return;
     }
     // else, let the link work as normal

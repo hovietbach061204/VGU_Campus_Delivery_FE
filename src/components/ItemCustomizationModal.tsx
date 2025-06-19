@@ -79,7 +79,7 @@ export default function ItemCustomizationModal({
           <span className="font-medium text-[#ff785b]">{itemName}</span>
         </p>
         {itemDescription && (
-          <p className="mb-4 text-xs text-gray-500 italic">{itemDescription}</p>
+          <p className="mb-4 text-xs italic text-gray-500">{itemDescription}</p>
         )}
 
         {/* Portion Size Selection */}
@@ -107,6 +107,7 @@ export default function ItemCustomizationModal({
                   checked={selectedPortion === size.value}
                   onChange={(e) => setSelectedPortion(e.target.value)}
                   className="text-[#ff785b] focus:ring-[#ff785b]"
+                  aria-label={`Select portion size ${size.label}`}
                 />
                 <div>
                   <div className="font-medium text-gray-800">{size.label}</div>

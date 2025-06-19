@@ -438,7 +438,7 @@ export default function OrderDashboard() {
       </div>
       {/* Confirmation Dialog */}
       {showCancelDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-opacity/40 fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="w-80 rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold">Confirm Cancellation</h2>
             <p className="mb-6">Are you sure you want to cancel this order?</p>
@@ -464,7 +464,7 @@ export default function OrderDashboard() {
       )}
       {/* Success Prompt */}
       {showSuccessPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-opacity/40 fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="w-80 rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold">Order Cancelled</h2>
             <p className="mb-6">You have successfully cancelled the order.</p>
