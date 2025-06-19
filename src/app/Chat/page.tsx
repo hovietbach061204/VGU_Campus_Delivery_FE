@@ -12,13 +12,13 @@
 
 'use client';
 
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import OrderChat from '@/components/OrderChat';
 
-export default function ChatPage() {
+function ChatPageInner() {
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState<string>('');
   const [role, setRole] = useState<'purchaser' | 'deliveryman'>('purchaser');
@@ -146,5 +146,24 @@ export default function ChatPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#ffe5dc] to-[#fff8f6]">
+          <div className="text-center">
+            <h1 className="mb-4 text-2xl font-bold text-gray-800">
+              Loading...
+            </h1>
+            <p className="text-gray-600">Setting up chat...</p>
+          </div>
+        </main>
+      }
+    >
+      <ChatPageInner />
+    </Suspense>
   );
 }
