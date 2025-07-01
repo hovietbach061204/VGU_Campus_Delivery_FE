@@ -13,7 +13,7 @@ export interface EateryPayload {
   foodItems: FoodItem[];
 }
 
-export async function createEatery(token: string, payload: EateryPayload) {
+export async function createEatery(token: string, payload: any) {
   const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/identity/eateries`,
     {
